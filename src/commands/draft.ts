@@ -3,28 +3,91 @@ import { join } from 'path'
 import chalk from 'chalk'
 import ora from 'ora'
 import { requireConfig } from '../lib/config.js'
-import { readCodebase, readGitHistory } from '../lib/repo.js'
-import { buildDraftPrompt } from '../lib/prompt.js'
+import {
+  readCodebase,
+  readGitHistory,
+  readArchitectureContext,
+  readDetailedGitHistory,
+} from '../lib/repo.js'
+import {
+  buildTutorialPrompt,
+  buildStoryPrompt,
+  buildComparisonPrompt,
+  buildChangelogPrompt,
+  buildOpinionPrompt,
+  buildListiclePrompt,
+} from '../lib/prompt.js'
 import { runAi } from '../lib/ai.js'
 import { parsePost } from '../lib/parser.js'
 import { publishPost } from '../lib/api.js'
-import type { DraftOptions } from '../types.js'
+import type { DraftOptions, PostType } from '../types.js'
+
+interface DraftContext {
+  codebaseContext?: string
+  gitHistory?: string
+  detailedGitHistory?: string
+  architectureContext?: string
+}
+
+async function buildContext(type: PostType, cwd: string): Promise<DraftContext> {
+  switch (type) {
+    case 'story':
+      return {
+        detailedGitHistory: readDetailedGitHistory(cwd),
+        architectureContext: await readArchitectureContext(cwd),
+      }
+    case 'comparison':
+    case 'opinion':
+      return {
+        architectureContext: await readArchitectureContext(cwd),
+        gitHistory: readGitHistory(cwd),
+      }
+    case 'changelog':
+      return { detailedGitHistory: readDetailedGitHistory(cwd) }
+    case 'listicle':
+      return { codebaseContext: await readCodebase(cwd) }
+    case 'tutorial':
+    default:
+      return {
+        codebaseContext: await readCodebase(cwd),
+        gitHistory: readGitHistory(cwd),
+      }
+  }
+}
+
+function buildPrompt(type: PostType, keyword: string, context: DraftContext): string {
+  switch (type) {
+    case 'story':
+      return buildStoryPrompt(keyword, context.detailedGitHistory ?? '', context.architectureContext ?? '')
+    case 'comparison':
+      return buildComparisonPrompt(keyword, context.architectureContext ?? '')
+    case 'changelog':
+      return buildChangelogPrompt(keyword, context.detailedGitHistory ?? '')
+    case 'opinion':
+      return buildOpinionPrompt(keyword, context.architectureContext ?? '', context.gitHistory ?? '')
+    case 'listicle':
+      return buildListiclePrompt(keyword, context.codebaseContext ?? '')
+    case 'tutorial':
+    default:
+      return buildTutorialPrompt(keyword, context.codebaseContext ?? '', context.gitHistory ?? '')
+  }
+}
 
 export async function draftCommand(options: DraftOptions) {
   const config = requireConfig()
   const cwd = process.cwd()
+  const type = options.type || 'tutorial'
 
-  // Step 1: Read codebase
+  // Step 1: Read codebase context for the chosen post type
   const spinner = ora('Reading codebase...').start()
-  const codebaseContext = await readCodebase(cwd)
-  const gitHistory = readGitHistory(cwd)
+  const context = await buildContext(type, cwd)
   spinner.succeed('Codebase read')
 
-  // Step 2: Build prompt
-  const prompt = buildDraftPrompt(options.keyword, codebaseContext, gitHistory)
+  // Step 2: Build prompt for the chosen post type
+  const prompt = buildPrompt(type, options.keyword, context)
 
   // Step 3: Run AI
-  spinner.start(`Drafting post with ${options.ai}...`)
+  spinner.start(`Drafting ${type} post with ${options.ai}...`)
   let raw: string
   try {
     raw = runAi(prompt, options.ai)

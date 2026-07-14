@@ -25,3 +25,23 @@ export function runAi(prompt: string, provider: AiProvider = 'claude'): string {
     throw new Error(`AI command failed: ${err.message}`)
   }
 }
+
+// AI providers frequently wrap JSON in ```json fences despite instructions
+// not to — strip those defensively before parsing.
+function stripCodeFences(raw: string): string {
+  const trimmed = raw.trim()
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/)
+  return fenced ? fenced[1].trim() : trimmed
+}
+
+export function runAiJson<T>(prompt: string, provider: AiProvider = 'claude'): T {
+  const raw = runAi(prompt, provider)
+  const cleaned = stripCodeFences(raw)
+
+  try {
+    return JSON.parse(cleaned) as T
+  } catch (err: any) {
+    const preview = cleaned.length > 500 ? `${cleaned.slice(0, 500)}...` : cleaned
+    throw new Error(`AI returned invalid JSON: ${err.message}\n\nRaw output:\n${preview}`)
+  }
+}

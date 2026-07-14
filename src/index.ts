@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import { authCommand } from './commands/auth.js'
 import { draftCommand } from './commands/draft.js'
 import { publishCommand } from './commands/publish.js'
+import { suggestCommand } from './commands/suggest.js'
 
 const program = new Command()
 
@@ -20,6 +21,11 @@ program
   .command('draft')
   .description('Draft a new blog post from your codebase')
   .requiredOption('-k, --keyword <keyword>', 'Target SEO keyword')
+  .option(
+    '-t, --type <type>',
+    'Post type: tutorial, story, comparison, changelog, opinion, listicle',
+    'tutorial',
+  )
   .option('-a, --ai <provider>', 'AI provider: claude, codex, gemini', 'claude')
   .option('-o, --output <path>', 'Custom output path for .md file')
   .option('-p, --publish', 'Auto-publish after drafting', false)
@@ -29,5 +35,12 @@ program
   .command('publish <file>')
   .description('Publish a local .md file to your blog')
   .action(publishCommand)
+
+program
+  .command('suggest')
+  .description('Suggest blog post ideas based on your recent git activity')
+  .option('-a, --ai <provider>', 'AI provider: claude, codex, gemini', 'claude')
+  .option('-n, --limit <number>', 'Max number of suggestions', (v) => parseInt(v, 10), 5)
+  .action((options) => suggestCommand(options))
 
 program.parse()
