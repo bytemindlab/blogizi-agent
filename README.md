@@ -25,6 +25,9 @@ blogizi draft --keyword "go chi middleware" --publish
 Publish a local .md file:
 blogizi publish ./blogizi-posts/go-chi-middleware.md
 
+Upload a local .md file as a draft (same as publish, but not live):
+blogizi upload ./blogizi-posts/go-chi-middleware.md
+
 ## Post Types
 
 Choose the shape of the post with `--type` (defaults to `tutorial`):

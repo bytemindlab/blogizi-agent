@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import { authCommand } from './commands/auth.js'
 import { draftCommand } from './commands/draft.js'
 import { publishCommand } from './commands/publish.js'
+import { uploadCommand } from './commands/upload.js'
 import { suggestCommand } from './commands/suggest.js'
 
 const program = new Command()
@@ -35,6 +36,11 @@ program
   .command('publish <file>')
   .description('Publish a local .md file to your blog')
   .action(publishCommand)
+
+program
+  .command('upload <file>')
+  .description('Upload a local .md file to your blog as a draft')
+  .action(uploadCommand)
 
 program
   .command('suggest')
