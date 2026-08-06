@@ -6,12 +6,18 @@ export async function publishPost(
 ): Promise<{ success: boolean; url?: string; projectId?: string; error?: string }> {
   const url = `${config.apiUrl}/api/posts`
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${config.apiKey}`,
+  }
+
+  if (config.projectSlug) {
+    headers['X-Blogizi-Project'] = config.projectSlug
+  }
+
   const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-    },
+    headers,
     body: JSON.stringify({
       title: post.frontmatter.title,
       slug: post.frontmatter.slug,
@@ -20,6 +26,7 @@ export async function publishPost(
       content: post.content,
       frontmatter: post.frontmatter,
       status: post.frontmatter.status,
+      ...(config.projectSlug ? { projectSlug: config.projectSlug } : {}),
     }),
   })
 

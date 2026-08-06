@@ -17,12 +17,8 @@ export async function suggestCommand(options: SuggestOptions) {
   const architectureContext = await readArchitectureContext(cwd)
   spinner.succeed('Git history scanned')
 
-  // NOTE: the config stores only { apiKey, apiUrl } — there is no stored
-  // projectId (by design: an API key is unique per project) and `auth`
-  // never calls the API, so the CLI has no way to fetch this project's
-  // existing post titles to dedupe suggestions against. Suggestions below
-  // are based purely on local git/architecture context, not on what's
-  // already been published.
+  // NOTE: suggest is local-only. Config may include projectSlug for publish,
+  // but we don't fetch existing post titles from the API here.
   const prompt = buildSuggestPrompt(recentCommits, architectureContext, options.limit)
 
   spinner.start(`Generating suggestions with ${options.ai}...`)

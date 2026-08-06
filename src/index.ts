@@ -5,6 +5,7 @@ import { draftCommand } from './commands/draft.js'
 import { publishCommand } from './commands/publish.js'
 import { uploadCommand } from './commands/upload.js'
 import { suggestCommand } from './commands/suggest.js'
+import { useCommand } from './commands/use.js'
 
 const program = new Command()
 
@@ -15,8 +16,14 @@ program
 
 program
   .command('auth <apiKey>')
-  .description('Authenticate with your Blogizi project')
-  .action(authCommand)
+  .description('Authenticate with your Blogizi account API key')
+  .option('-p, --project <slug>', 'Set the active project slug')
+  .action((apiKey, options) => authCommand(apiKey, options))
+
+program
+  .command('use <projectSlug>')
+  .description('Set the active project for publish/upload (account API keys)')
+  .action(useCommand)
 
 program
   .command('draft')

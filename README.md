@@ -9,10 +9,21 @@ npm install -g blogizi
 ## Setup
 
 1. Go to blogizi.com and create a project
-2. Copy your API key from the project settings
+2. Copy your **account** API key from Dashboard → Account → API (or Project → Settings → API)
 3. Run:
 
+```sh
 blogizi auth <api-key>
+```
+
+4. If you have more than one project, select which one to publish to:
+
+```sh
+blogizi use <project-slug>
+# or: blogizi auth <api-key> --project <project-slug>
+```
+
+With a single project, the API picks it automatically.
 
 ## Usage
 
@@ -48,7 +59,7 @@ blogizi suggest --ai codex --limit 3
 
 This reads your recent commits and project architecture and proposes titles, keywords, and
 post types grounded in what you've actually shipped — no dedup against posts already on your
-dashboard, since the CLI doesn't track which project an API key belongs to.
+dashboard (suggest is local-only).
 
 Draft directly from a suggestion:
 

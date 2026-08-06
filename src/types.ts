@@ -1,6 +1,8 @@
 export interface Config {
   apiKey: string
   apiUrl: string // default: https://blogizi.com
+  /** Active project slug for CLI publish/upload when using an account API key */
+  projectSlug?: string
 }
 
 export interface PostFrontmatter {
