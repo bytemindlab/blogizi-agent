@@ -283,4 +283,6 @@ npm run dev -- draft ./posts/example.md
 
 ## License
 
-ISC (see `package.json`).
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+
+Copyright (c) 2026 Blogizi.

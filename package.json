@@ -19,7 +19,7 @@
   },
   "keywords": ["blogizi", "blog", "markdown", "cli"],
   "author": "Blogizi",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "chalk": "^5.6.2",
     "commander": "^15.0.0",
