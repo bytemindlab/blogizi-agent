@@ -1,7 +1,7 @@
 {
   "name": "blogizi",
-  "version": "0.2.0",
-  "description": "AI agent CLI that turns your codebase into SEO blog posts",
+  "version": "0.3.0",
+  "description": "CLI to draft and publish markdown posts to Blogizi",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -17,13 +17,12 @@
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["blogizi", "blog", "markdown", "cli"],
+  "author": "Blogizi",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.6.2",
     "commander": "^15.0.0",
-    "glob": "^13.0.6",
     "gray-matter": "^4.0.3",
     "ora": "^9.4.1",
     "picocolors": "^1.1.1"

@@ -1,84 +1,286 @@
 # Blogizi CLI
 
-AI agent that turns your codebase into SEO blog posts.
+Draft and publish markdown posts to your [Blogizi](https://blogizi.com) blog.
 
-## Install
+This README is the **primary documentation** for the CLI: install, usage, public API reference, and local development. Site docs: [blogizi.com/docs/cli-publishing](https://blogizi.com/docs/cli-publishing).
 
+AI coding agents should write (or edit) the `.md` file themselves, then call `blogizi draft` / `blogizi publish`. See [SKILL.md](./SKILL.md).
+
+## Requirements
+
+- **Node.js 20+**
+- A [Blogizi](https://blogizi.com) account and project
+
+## Installation
+
+```sh
 npm install -g blogizi
+```
+
+From source (see [Development](#development)):
+
+```sh
+git clone https://github.com/bytemindlab/blogizi-cli.git
+cd blogizi-cli
+npm install
+npm run build
+npm link   # optional: expose `blogizi` globally from this checkout
+```
+
+Verify:
+
+```sh
+blogizi --version
+blogizi --help
+```
 
 ## Setup
 
-1. Go to blogizi.com and create a project
-2. Copy your **account** API key from Dashboard → Account → API (or Project → Settings → API)
-3. Run:
+1. Create a project at [blogizi.com](https://blogizi.com).
+2. Copy your **account API key** from **Dashboard → Account → API** (also shown under project Settings → API).
+3. Authenticate:
 
 ```sh
-blogizi auth <api-key>
+blogizi auth YOUR_ACCOUNT_API_KEY
 ```
 
-4. If you have more than one project, select which one to publish to:
+4. If you have **more than one project**, select which blog to publish to:
 
 ```sh
-blogizi use <project-slug>
-# or: blogizi auth <api-key> --project <project-slug>
+blogizi use your-project-slug
+# or in one step:
+blogizi auth YOUR_ACCOUNT_API_KEY --project your-project-slug
 ```
 
-With a single project, the API picks it automatically.
+With a single project, the API picks it automatically — you can skip `blogizi use`.
+
+Credentials are stored in `~/.blogizi/config.json`:
+
+```json
+{
+  "apiKey": "…",
+  "apiUrl": "https://blogizi.com",
+  "projectSlug": "your-project-slug"
+}
+```
+
+Treat the API key like a password. Never commit it to git or paste it into chat logs.
 
 ## Usage
 
-Draft a post (saved as draft):
-blogizi draft --keyword "go chi middleware"
+### Draft / publish a markdown file
 
-Draft and publish immediately:
-blogizi draft --keyword "go chi middleware" --publish
+```sh
+# Save as draft in the dashboard (not live)
+blogizi draft ./posts/go-chi-middleware.md
 
-Publish a local .md file:
-blogizi publish ./blogizi-posts/go-chi-middleware.md
+# Publish live
+blogizi publish ./posts/go-chi-middleware.md
+```
 
-Upload a local .md file as a draft (same as publish, but not live):
-blogizi upload ./blogizi-posts/go-chi-middleware.md
+`draft` forces `status: draft`; `publish` forces `status: published`. Both send the same create-post API payload.
 
-## Post Types
+### Project switching
 
-Choose the shape of the post with `--type` (defaults to `tutorial`):
+```sh
+blogizi use another-project-slug
+```
 
-blogizi draft --keyword "go chi middleware" --type tutorial     # technical, code-heavy (default)
-blogizi draft --keyword "why I rewrote my auth" --type story    # narrative journey, git history driven
-blogizi draft --keyword "chi vs gin" --type comparison          # X vs Y, high search intent
-blogizi draft --keyword "v2.0 release notes" --type changelog   # release notes from git log
-blogizi draft --keyword "why I chose postgres" --type opinion   # why I chose X, lessons learned
-blogizi draft --keyword "7 go middleware patterns" --type listicle  # numbered list format
+### Command reference
 
-## Suggest Post Ideas
+| Command | Description |
+| --- | --- |
+| `blogizi auth <apiKey> [--project <slug>]` | Save account API key (and optional project) |
+| `blogizi use <projectSlug>` | Set active project for draft/publish |
+| `blogizi draft <file>` | Save a local `.md` file as a **draft** |
+| `blogizi publish <file>` | Publish a local `.md` file **live** |
 
-Not sure what to write about? Scan your recent git activity for post ideas:
+### Typical agent workflow
 
-blogizi suggest
-blogizi suggest --ai codex --limit 3
+1. Write a markdown file with Blogizi frontmatter (you / your AI agent).
+2. `blogizi draft path/to/post.md` → review in the dashboard.
+3. When ready: `blogizi publish path/to/post.md`.
 
-This reads your recent commits and project architecture and proposes titles, keywords, and
-post types grounded in what you've actually shipped — no dedup against posts already on your
-dashboard (suggest is local-only).
+## Frontmatter format
 
-Draft directly from a suggestion:
+Posts are markdown with YAML frontmatter (same shape as [Write in Markdown](https://blogizi.com/docs/markdown-frontmatter)):
 
-blogizi draft --keyword "<suggested keyword>" --type <suggested type>
+```yaml
+---
+title: "How we built our auth flow"
+description: "A short meta description"
+keyword: "indie app authentication"
+slug: how-we-built-our-auth-flow
+status: "draft"
+date: "2026-08-07"
+readingTime: 0
+wordCount: 0
+---
 
-## AI Providers
+Your markdown content here.
+```
 
-blogizi draft --keyword "x" --ai claude   # default
-blogizi draft --keyword "x" --ai codex
-blogizi draft --keyword "x" --ai gemini
+The CLI recalculates `readingTime` / `wordCount` on parse and strips a duplicate H1 that matches `title` when present.
 
-Requires the respective CLI to be installed and authenticated on your machine.
+## Public API reference
 
-## How it works
+Base URL: `https://blogizi.com`
 
-1. Reads local context suited to the chosen post type (codebase, git history, or
-   architecture files)
-2. Builds a type-specific, context-aware prompt
-3. Shells out to your local AI CLI (claude -p, codex, etc.)
-4. Parses the markdown output
-5. Saves .md file locally in ./blogizi-posts/
-6. Pushes to your Blogizi dashboard via API
+### Authentication
+
+Account-scoped API key (authorizes **all** projects you own):
+
+```http
+Authorization: Bearer YOUR_ACCOUNT_API_KEY
+```
+
+Optional project selector when you have multiple projects (any one of these):
+
+```http
+X-Blogizi-Project: your-project-slug
+```
+
+Or in the JSON body: `projectSlug`, `project`, or `projectId`.  
+With a **single** project, the server selects it automatically.
+
+Get or regenerate the key in the dashboard (session auth):
+
+```http
+GET  /api/account/keys
+POST /api/account/keys
+```
+
+### Create a post (CLI / integrations)
+
+```http
+POST /api/posts
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCOUNT_API_KEY
+X-Blogizi-Project: your-project-slug
+```
+
+**Body**
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `title` | string | Required |
+| `slug` | string | Required; URL path segment |
+| `description` | string | Optional meta description |
+| `keyword` | string | Optional focus keyword |
+| `content` | string | Markdown body (without frontmatter) |
+| `frontmatter` | object | Optional; merged metadata |
+| `status` | `"draft"` \| `"published"` | Visibility |
+| `projectSlug` | string | Optional alternative to the header |
+| `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (used by the [Obsidian plugin](https://blogizi.com/docs/obsidian); CLI create currently omits this) |
+
+**Success response** (simplified):
+
+```json
+{
+  "data": { "slug": "how-we-built-our-auth-flow", "...": "..." },
+  "project": { "id": "…", "slug": "your-project-slug" },
+  "created": true
+}
+```
+
+Public URL pattern: `https://{projectSlug}.app.blogizi.com/{postSlug}`
+
+### List projects
+
+```http
+GET /api/account/projects
+Authorization: Bearer YOUR_ACCOUNT_API_KEY
+```
+
+```json
+{
+  "data": [
+    { "id": "…", "name": "My Blog", "slug": "my-blog" }
+  ]
+}
+```
+
+### Project-scoped posts (API key)
+
+```http
+GET  /api/projects/{projectId}/posts
+POST /api/projects/{projectId}/posts
+Authorization: Bearer YOUR_ACCOUNT_API_KEY
+```
+
+`POST` accepts the same create payload as `/api/posts` (project implied by the path).
+
+Update/delete by post id is currently **dashboard session auth only**:
+
+```http
+PATCH  /api/projects/{projectId}/posts/{postId}
+DELETE /api/projects/{projectId}/posts/{postId}
+```
+
+### Public blog endpoints (no auth)
+
+```http
+GET  /api/sites/{projectSlug}/posts?page=1&limit=10&tag=optional
+GET  /api/sites/{projectSlug}/search?q=query
+POST /api/sites/{projectSlug}/analytics
+GET  /api/resolve-domain?host=blog.example.com
+```
+
+### Example: create a draft with curl
+
+```sh
+curl -sS -X POST https://blogizi.com/api/posts \
+  -H "Authorization: Bearer $BLOGIZI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "X-Blogizi-Project: your-project-slug" \
+  -d '{
+    "title": "Hello from curl",
+    "slug": "hello-from-curl",
+    "description": "Posted via the public API",
+    "keyword": "blogizi api",
+    "content": "This post was created with curl.\n",
+    "status": "draft"
+  }'
+```
+
+Machine-oriented overview: [blogizi.com/llms.txt](https://blogizi.com/llms.txt).
+
+## Development
+
+### Clone and install
+
+```sh
+git clone https://github.com/bytemindlab/blogizi-cli.git
+cd blogizi-cli
+npm install
+```
+
+### Scripts
+
+| Script | Description |
+| --- | --- |
+| `npm run build` | Compile TypeScript → `dist/` and mark the bin executable |
+| `npm run dev` | Run the CLI via `tsx` without building (`tsx src/index.ts`) |
+| `npm start` | Run the compiled `dist/index.js` |
+
+Examples:
+
+```sh
+npm run build
+node dist/index.js --help
+
+npm run dev -- draft ./posts/example.md
+```
+
+## Related
+
+- AI agent guide: [SKILL.md](./SKILL.md)
+- Product: [blogizi.com](https://blogizi.com)
+- CLI docs: [blogizi.com/docs/cli-publishing](https://blogizi.com/docs/cli-publishing)
+- Markdown frontmatter: [blogizi.com/docs/markdown-frontmatter](https://blogizi.com/docs/markdown-frontmatter)
+- Obsidian plugin: [blogizi.com/docs/obsidian](https://blogizi.com/docs/obsidian) · [blogizi-obsidian](https://github.com/bytemindlab/blogizi-obsidian)
+- LLM / agent brief: [blogizi.com/llms.txt](https://blogizi.com/llms.txt)
+
+## License
+
+ISC (see `package.json`).
