@@ -6,6 +6,31 @@ This README is the **primary documentation** for the CLI: install, usage, public
 
 AI coding agents should write (or edit) the `.md` file themselves, then call `blogizi draft` / `blogizi publish`. See [SKILL.md](./SKILL.md).
 
+## Claude Code plugin
+
+This repo is a Claude Code plugin (`blogizi`). Local test:
+
+```sh
+claude --plugin-dir .
+# then: /blogizi:blogizi
+claude plugin validate . --strict
+```
+
+Install from this marketplace (before community listing):
+
+```text
+/plugin marketplace add bytemindlab/blogizi-agent
+/plugin install blogizi@blogizi-agent
+```
+
+Or add the skill via [skills.sh](https://skills.sh):
+
+```sh
+npx skills add bytemindlab/blogizi-agent
+```
+
+To submit to Anthropic’s **community** marketplace (`claude-community`), validate locally, then use [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) (or the Team/Enterprise form on claude.ai). The curated **official** marketplace (`claude-plugins-official`) has no open application process.
+
 ## Requirements
 
 - **Node.js 20+**
@@ -20,8 +45,8 @@ npm install -g blogizi
 From source (see [Development](#development)):
 
 ```sh
-git clone https://github.com/bytemindlab/blogizi-cli.git
-cd blogizi-cli
+git clone https://github.com/bytemindlab/blogizi-agent.git
+cd blogizi-agent
 npm install
 npm run build
 npm link   # optional: expose `blogizi` globally from this checkout
@@ -250,8 +275,8 @@ Machine-oriented overview: [blogizi.com/llms.txt](https://blogizi.com/llms.txt).
 ### Clone and install
 
 ```sh
-git clone https://github.com/bytemindlab/blogizi-cli.git
-cd blogizi-cli
+git clone https://github.com/bytemindlab/blogizi-agent.git
+cd blogizi-agent
 npm install
 ```
 
@@ -276,6 +301,7 @@ npm run dev -- draft ./posts/example.md
 
 - Examples: [examples/EXAMPLES.md](./examples/EXAMPLES.md) · [examples/COMMAND_LINE_GUIDE.md](./examples/COMMAND_LINE_GUIDE.md)
 - AI agent guide: [SKILL.md](./SKILL.md)
+- Claude plugin manifest: [`.claude-plugin/plugin.json`](./.claude-plugin/plugin.json)
 - Product: [blogizi.com](https://blogizi.com)
 - CLI docs: [blogizi.com/docs/cli-publishing](https://blogizi.com/docs/cli-publishing)
 - Markdown frontmatter: [blogizi.com/docs/markdown-frontmatter](https://blogizi.com/docs/markdown-frontmatter)

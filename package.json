@@ -17,9 +17,17 @@
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["blogizi", "blog", "markdown", "cli"],
-  "author": "Blogizi",
+  "keywords": ["blogizi", "blog", "markdown", "cli", "seo", "claude-code", "agent"],
+  "author": "ByteMind",
   "license": "AGPL-3.0-only",
+  "homepage": "https://blogizi.com/docs/cli-publishing",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bytemindlab/blogizi-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bytemindlab/blogizi-agent/issues"
+  },
   "dependencies": {
     "chalk": "^5.6.2",
     "commander": "^15.0.0",

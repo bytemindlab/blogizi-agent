@@ -1,10 +1,11 @@
 ---
-name: blogizi-cli
+name: blogizi
 description: >-
   Draft and publish SEO blog posts to Blogizi from a local repo using the
   Blogizi CLI and account API. Use when the user mentions Blogizi, blogizi
   draft/publish, posting markdown to a blog, SEO blog posts, or integrating
   with the Blogizi public API / Obsidian plugin workflow.
+homepage: https://blogizi.com/docs/cli-publishing
 ---
 
 # Blogizi CLI — AI Agent Guide
