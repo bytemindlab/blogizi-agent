@@ -274,6 +274,7 @@ npm run dev -- draft ./posts/example.md
 
 ## Related
 
+- Examples: [examples/EXAMPLES.md](./examples/EXAMPLES.md) · [examples/COMMAND_LINE_GUIDE.md](./examples/COMMAND_LINE_GUIDE.md)
 - AI agent guide: [SKILL.md](./SKILL.md)
 - Product: [blogizi.com](https://blogizi.com)
 - CLI docs: [blogizi.com/docs/cli-publishing](https://blogizi.com/docs/cli-publishing)
