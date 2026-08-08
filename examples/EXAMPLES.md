@@ -29,6 +29,7 @@ chmod +x examples/basic-usage.sh
 
 # Or call the CLI directly
 blogizi draft examples/sample-post.md
+# blogizi update examples/sample-post.md   # after edits, same slug
 # blogizi publish examples/sample-post.md   # only when you want it live
 ```
 
@@ -45,6 +46,7 @@ node examples/create-post.js
 ## Notes
 
 - `blogizi draft` saves a **draft** in the dashboard (not live).
+- `blogizi update` updates an existing post by **slug**.
 - `blogizi publish` makes the post **live**.
 - Prefer the CLI over raw HTTP unless you are building an integration.
 - Full reference: [README.md](../README.md) · Agent guide: [SKILL.md](../SKILL.md)

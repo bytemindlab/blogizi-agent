@@ -12,7 +12,7 @@ Draft and publish markdown posts to your [Blogizi](https://blogizi.com) blog.
 
 This README is the **primary documentation** for the CLI: install, usage, public API reference, and local development. Site docs: [blogizi.com/docs/cli-publishing](https://blogizi.com/docs/cli-publishing).
 
-AI coding agents should write (or edit) the `.md` file themselves, then call `blogizi draft` / `blogizi publish`. See [SKILL.md](./SKILL.md).
+AI coding agents should write (or edit) the `.md` file themselves, then call `blogizi draft` / `blogizi update` / `blogizi publish`. See [SKILL.md](./SKILL.md).
 
 ## Claude Code plugin
 
@@ -95,17 +95,20 @@ Treat the API key like a password. Never commit it to git or paste it into chat 
 
 ## Usage
 
-### Draft / publish a markdown file
+### Draft / update / publish a markdown file
 
 ```sh
 # Save as draft in the dashboard (not live)
 blogizi draft ./posts/go-chi-middleware.md
 
+# Update an existing post by slug (keeps draft/published unless frontmatter sets status)
+blogizi update ./posts/go-chi-middleware.md
+
 # Publish live
 blogizi publish ./posts/go-chi-middleware.md
 ```
 
-`draft` forces `status: draft`; `publish` forces `status: published`. Both send the same create-post API payload.
+`draft` forces `status: draft`; `publish` forces `status: published`. `update` sends `upsert: true` and only changes status when the file sets `status` explicitly — otherwise the post keeps its current visibility.
 
 ### Project switching
 
@@ -118,15 +121,17 @@ blogizi use another-project-slug
 | Command | Description |
 | --- | --- |
 | `blogizi auth <apiKey> [--project <slug>]` | Save account API key (and optional project) |
-| `blogizi use <projectSlug>` | Set active project for draft/publish |
+| `blogizi use <projectSlug>` | Set active project for draft/update/publish |
 | `blogizi draft <file>` | Save a local `.md` file as a **draft** |
+| `blogizi update <file>` | **Update** an existing post by slug (`upsert`) |
 | `blogizi publish <file>` | Publish a local `.md` file **live** |
 
 ### Typical agent workflow
 
 1. Write a markdown file with Blogizi frontmatter (you / your AI agent).
 2. `blogizi draft path/to/post.md` → review in the dashboard.
-3. When ready: `blogizi publish path/to/post.md`.
+3. Edit and re-push with `blogizi update path/to/post.md` (same slug).
+4. When ready: `blogizi publish path/to/post.md`.
 
 ## Frontmatter format
 
@@ -198,7 +203,7 @@ X-Blogizi-Project: your-project-slug
 | `frontmatter` | object | Optional; merged metadata |
 | `status` | `"draft"` \| `"published"` | Visibility |
 | `projectSlug` | string | Optional alternative to the header |
-| `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (used by the [Obsidian plugin](https://blogizi.com/docs/obsidian); CLI create currently omits this) |
+| `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (`blogizi update` and the [Obsidian plugin](https://blogizi.com/docs/obsidian)) |
 
 **Success response** (simplified):
 

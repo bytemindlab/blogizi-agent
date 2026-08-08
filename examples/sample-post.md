@@ -15,7 +15,8 @@ This is a sample post for the Blogizi CLI examples.
 
 ```sh
 blogizi draft examples/sample-post.md
+blogizi update examples/sample-post.md
 blogizi publish examples/sample-post.md
 ```
 
-Change the `slug` before publishing if this slug already exists on your project.
+Use `blogizi update` for the same slug after edits. Change the `slug` before `draft`/`publish` if you want a new post.

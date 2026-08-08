@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "blogizi",
   "displayName": "Blogizi",
-  "version": "0.3.0",
-  "description": "Draft and publish SEO blog posts to Blogizi from local markdown. Agents write the post; the Blogizi CLI authenticates and drafts or publishes via the account API.",
+  "version": "0.4.0",
+  "description": "Draft, update, and publish SEO blog posts to Blogizi from local markdown. Agents write the post; the Blogizi CLI authenticates and drafts, updates, or publishes via the account API.",
   "author": {
     "name": "ByteMind",
     "url": "https://github.com/bytemindlab"
@@ -19,6 +19,7 @@
     "publishing",
     "cli",
     "draft",
+    "update",
     "ai-agent"
   ],
   "skills": ["./"]

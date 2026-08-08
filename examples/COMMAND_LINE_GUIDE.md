@@ -62,10 +62,20 @@ blogizi draft path/to/my-post.md
 ```
 
 - Forces `status: draft` regardless of frontmatter
-- Creates a new post on Blogizi (same slug already existing → conflict)
+- Creates a new post on Blogizi (same slug already existing → conflict — use `update`)
 - Prints a dashboard link to edit the draft
 
-## 5. Publish live
+## 5. Update an existing post
+
+```sh
+blogizi update path/to/my-post.md
+```
+
+- Matches by `slug` and updates the existing post (`upsert: true`)
+- Keeps current draft/published status unless the file sets `status` explicitly
+- If no post exists for that slug, creates one
+
+## 6. Publish live
 
 Only when you intend the post to be public:
 
@@ -76,7 +86,7 @@ blogizi publish path/to/my-post.md
 - Forces `status: published`
 - Prints the public URL: `https://{projectSlug}.app.blogizi.com/{postSlug}`
 
-## 6. Switch projects
+## 7. Switch projects
 
 ```sh
 blogizi use another-project-slug
@@ -90,8 +100,9 @@ Confirm the active slug in `~/.blogizi/config.json` if the wrong blog updates.
 | --- | --- |
 | `blogizi auth <key> [--project <slug>]` | Save API key (and optional project) |
 | `blogizi use <slug>` | Set active project |
-| `blogizi draft <file>` | Push `.md` as **draft** |
-| `blogizi publish <file>` | Push `.md` as **published** |
+| `blogizi draft <file>` | Push `.md` as **draft** (create) |
+| `blogizi update <file>` | **Update** existing post by slug |
+| `blogizi publish <file>` | Push `.md` as **published** (create) |
 
 ## Common workflows
 
@@ -99,6 +110,7 @@ Confirm the active slug in `~/.blogizi/config.json` if the wrong blog updates.
 
 ```sh
 blogizi draft ./posts/my-post.md      # review in dashboard
+blogizi update ./posts/my-post.md     # after edits, same slug
 blogizi publish ./posts/my-post.md    # go live when ready
 ```
 

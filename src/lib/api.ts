@@ -1,9 +1,28 @@
-import type { Config, ParsedPost } from '../types.js'
+import type { Config, ParsedPost, PostFrontmatter } from '../types.js'
+
+export type PublishPostOptions = {
+  /** Match Obsidian: update by slug when the post already exists. */
+  upsert?: boolean
+  /**
+   * When set, overrides frontmatter status in the request body.
+   * When `null`, omit status so the server keeps the existing post's status on update.
+   */
+  status?: PostFrontmatter['status'] | null
+}
+
+export type PublishPostResult = {
+  success: boolean
+  url?: string
+  projectId?: string
+  created?: boolean
+  error?: string
+}
 
 export async function publishPost(
   config: Config,
   post: ParsedPost,
-): Promise<{ success: boolean; url?: string; projectId?: string; error?: string }> {
+  options: PublishPostOptions = {},
+): Promise<PublishPostResult> {
   const url = `${config.apiUrl}/api/posts`
 
   const headers: Record<string, string> = {
@@ -15,6 +34,11 @@ export async function publishPost(
     headers['X-Blogizi-Project'] = config.projectSlug
   }
 
+  const status =
+    options.status === null
+      ? undefined
+      : (options.status ?? post.frontmatter.status)
+
   const res = await fetch(url, {
     method: 'POST',
     headers,
@@ -25,7 +49,8 @@ export async function publishPost(
       keyword: post.frontmatter.keyword,
       content: post.content,
       frontmatter: post.frontmatter,
-      status: post.frontmatter.status,
+      ...(status !== undefined ? { status } : {}),
+      ...(options.upsert ? { upsert: true } : {}),
       ...(config.projectSlug ? { projectSlug: config.projectSlug } : {}),
     }),
   })
@@ -43,5 +68,6 @@ export async function publishPost(
     success: true,
     url: `https://${projectSlug}.app.blogizi.com/${slug}`,
     projectId,
+    created: json.created === true,
   }
 }
