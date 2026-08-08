@@ -2,9 +2,10 @@
 name: blogizi
 description: >-
   Draft, update, and publish SEO blog posts to Blogizi from a local repo using
-  the Blogizi CLI and account API. Use when the user mentions Blogizi, blogizi
-  draft/update/publish, posting markdown to a blog, SEO blog posts, or
-  integrating with the Blogizi public API / Obsidian plugin workflow.
+  the Blogizi CLI (preferred), hosted MCP as a sandbox backup, or the public
+  API. Use when the user mentions Blogizi, blogizi draft/update/publish, MCP
+  tools, posting markdown to a blog, SEO blog posts, or integrating with the
+  Blogizi public API / Obsidian plugin workflow.
 homepage: https://blogizi.com/docs/cli-publishing
 ---
 
@@ -12,14 +13,16 @@ homepage: https://blogizi.com/docs/cli-publishing
 
 Help the human ship blog posts to [Blogizi](https://blogizi.com) from their local repository. **You** (the coding agent) write the markdown in plain text; the CLI only authenticates and drafts/updates/publishes. Full human docs: [README.md](./README.md). Site overview: https://blogizi.com/llms.txt
 
+**Transport preference:** CLI first → hosted MCP if the CLI cannot run (sandbox / no shell / no Node) → raw HTTP API only if neither is available.
+
 ## Hard rules
 
-1. **Never ask the user to paste an API key into chat.** Tell them to run `blogizi auth <key>` locally (or edit `~/.blogizi/config.json` themselves).
+1. **Never ask the user to paste an API key into chat.** Tell them to run `blogizi auth <key>` locally (or edit `~/.blogizi/config.json` themselves). For MCP, tell them to put the key in their MCP client config — never in the chat.
 2. **Never commit** `~/.blogizi/config.json`, API keys, or `.env` secrets.
-3. **Default to drafts.** Use `blogizi draft` for the first push unless the user explicitly asks to go live (`blogizi publish`).
-4. **Use `blogizi update` to re-push edits** to an existing slug (same file after improvements). Do not invent a new slug just to avoid conflicts.
-5. **Do not invent Blogizi dashboard UI steps** beyond Account → API and project Settings. Prefer CLI + README.
-6. **Do not shell out to `claude` / `codex` / `gemini` via Blogizi.** Write the `.md` file yourself (or with the user), then `blogizi draft` / `blogizi update`. Do not shell out to Claude/Codex/Gemini for Blogizi.
+3. **Default to drafts.** Use `blogizi draft` (or MCP `draft_post`) for the first push unless the user explicitly asks to go live (`blogizi publish` / MCP `publish_post`).
+4. **Use `blogizi update` (or MCP `update_post`) to re-push edits** to an existing slug. Do not invent a new slug just to avoid conflicts.
+5. **Do not invent Blogizi dashboard UI steps** beyond Account → API and project Settings. Prefer CLI + README (or MCP docs when using tools).
+6. **Do not shell out to `claude` / `codex` / `gemini` via Blogizi.** Write the content yourself (or with the user), then draft/update via CLI or MCP.
 
 ## Prerequisites checklist
 
@@ -42,6 +45,7 @@ Ask the user to:
 4. If they have multiple projects: blogizi use <project-slug>
 ```
 
+If `blogizi` cannot be installed or run (sandbox, locked-down shell, no Node): skip the CLI checklist and use [hosted MCP](https://blogizi.com/docs/mcp) instead (see below). Do not fall back to inventing dashboard-only steps.
 ## Core workflows
 
 ### A. Write → draft → edit → update → publish (recommended)
@@ -94,17 +98,57 @@ Body markdown here. Do not repeat the title as an H1 — the blog UI already sho
 - `keyword`: phrase the post should rank for.
 - `status` in the file is overridden by `draft` (→ draft) and `publish` (→ published). `update` only changes status when the file sets `status` explicitly; otherwise the existing post keeps its visibility.
 
-## Public API patterns (when CLI is unavailable)
+## When the CLI is unavailable (sandbox / no shell)
 
-Base: `https://blogizi.com`
+Prefer the **hosted MCP** over raw HTTP. Use this path when:
+
+- You cannot install or run `blogizi` (restricted sandbox, no network install, no Node)
+- The client has MCP tools but no reliable shell
+- The user already connected Blogizi MCP in Cursor / Claude / etc.
+
+Docs: https://blogizi.com/docs/mcp
+
+### MCP connect (user configures once)
+
+Streamable HTTP: `https://blogizi.com/api/mcp` with `Authorization: Bearer <account API key>`.
+
+```json
+{
+  "mcpServers": {
+    "blogizi": {
+      "url": "https://blogizi.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_ACCOUNT_API_KEY"
+      }
+    }
+  }
+}
+```
+
+Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules: user adds the key in client config — not in chat.
+
+### MCP tools (map 1:1 to CLI)
+
+| Goal | CLI | MCP tool |
+| --- | --- | --- |
+| List blogs | (config / `blogizi use`) | `list_projects` |
+| First push / new slug | `blogizi draft` | `draft_post` |
+| Re-push same slug | `blogizi update` | `update_post` |
+| Go live | `blogizi publish` | `publish_post` |
+
+Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. `draft_post` fails if the slug exists — use `update_post`.
+
+With MCP you still write the post body yourself; pass it as `content` (markdown without frontmatter). You do not need a local `.md` file if the sandbox has nowhere useful to write one — but prefer a file when the repo is writable so the user can review.
+
+### Raw Public API (last resort)
+
+Only if neither CLI nor MCP tools are available (or the user wants integration code). Base: `https://blogizi.com`
 
 ```http
 Authorization: Bearer YOUR_ACCOUNT_API_KEY
 X-Blogizi-Project: project-slug
 Content-Type: application/json
 ```
-
-### Create post
 
 ```http
 POST /api/posts
@@ -123,10 +167,9 @@ POST /api/posts
 }
 ```
 
-- `upsert: true` → update existing post with the same slug (Obsidian plugin and `blogizi update`). CLI `draft` / `publish` omit upsert (create-only); `blogizi update` always sends upsert.
+- `upsert: true` → update existing post with the same slug (Obsidian / `blogizi update` / MCP `update_post`).
 - List projects: `GET /api/account/projects`
-
-**Prefer shelling out to `blogizi draft` / `blogizi update` / `blogizi publish`** instead of raw `curl` unless the user wants API integration code.
+- Prefer CLI → MCP → raw `curl` in that order.
 
 ## Usage examples (copy-ready)
 
@@ -165,7 +208,8 @@ blogizi publish ./content/rate-limiting-with-redis.md
 | `npm install -g blogizi` fails | Node too old / permissions | Need Node 20+; suggest `nvm` or local `npm link` from clone |
 | Network / fetch failed | Offline or API unreachable | Check connectivity to blogizi.com |
 | `blogizi draft` / `suggest` not found | Confused with old AI draft, or `suggest` removed | Use `blogizi draft <file.md>` to save a draft; write the file yourself first |
-| Need to change a live post | Existing published slug | `blogizi update path/to/post.md` (omit `status` in frontmatter to keep published) |
+| `blogizi` missing / blocked in sandbox | No install or shell exec | Use MCP tools (`draft_post` / `update_post` / `publish_post`); user configures Bearer key in MCP client |
+| Need to change a live post | Existing published slug | `blogizi update path/to/post.md` or MCP `update_post` (omit `status` to keep published) |
 
 When a command fails: capture stderr, classify using the table, propose the **smallest** next step (usually one command for the user to run).
 
@@ -181,17 +225,27 @@ When a command fails: capture stderr, classify using the table, propose the **sm
 
 ```text
 User wants a Blogizi post?
-├─ Not installed/authed? → install + user runs blogizi auth (+ use)
-├─ Need content? → YOU write .md with frontmatter (from repo context)
-├─ First push / new slug? → blogizi draft path/to/post.md
-├─ Edits to existing slug? → blogizi update path/to/post.md
-└─ User said go live? → blogizi publish path/to/post.md
+├─ Can run blogizi CLI?
+│  ├─ Not installed/authed? → install + user runs blogizi auth (+ use)
+│  ├─ Need content? → YOU write .md with frontmatter (from repo context)
+│  ├─ First push / new slug? → blogizi draft path/to/post.md
+│  ├─ Edits to existing slug? → blogizi update path/to/post.md
+│  └─ User said go live? → blogizi publish path/to/post.md
+├─ Sandbox / no CLI, but MCP Blogizi tools available?
+│  ├─ Not connected? → user adds /api/mcp + Bearer key in MCP client config
+│  ├─ Need content? → YOU write body (+ title/slug/meta)
+│  ├─ First push / new slug? → draft_post
+│  ├─ Edits to existing slug? → update_post
+│  └─ User said go live? → publish_post
+└─ Neither CLI nor MCP? → raw POST /api/posts (same auth); prefer wiring MCP next
 ```
 
 ## Related links
 
 - README (primary docs): [README.md](./README.md)
 - https://blogizi.com/docs/cli-publishing
+- https://blogizi.com/docs/mcp
 - https://blogizi.com/docs/markdown-frontmatter
 - https://blogizi.com/docs/obsidian
+- https://blogizi.com/docs/public-api
 - https://blogizi.com/llms.txt
