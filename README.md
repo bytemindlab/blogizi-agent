@@ -1,3 +1,11 @@
+## Install as a skill
+
+```bash
+npx skills add bytemindlab/blogizi-agent
+```
+
+---
+
 # Blogizi CLI
 
 Draft and publish markdown posts to your [Blogizi](https://blogizi.com) blog.
@@ -21,12 +29,6 @@ Install from this marketplace (before community listing):
 ```text
 /plugin marketplace add bytemindlab/blogizi-agent
 /plugin install blogizi@blogizi-agent
-```
-
-Or add the skill via [skills.sh](https://skills.sh):
-
-```sh
-npx skills add bytemindlab/blogizi-agent
 ```
 
 To submit to Anthropic’s **community** marketplace (`claude-community`), validate locally, then use [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) (or the Team/Enterprise form on claude.ai). The curated **official** marketplace (`claude-plugins-official`) has no open application process.
