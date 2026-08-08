@@ -1,6 +1,6 @@
 {
   "name": "blogizi",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "CLI to draft, update, and publish markdown posts to Blogizi",
   "main": "dist/index.js",
   "type": "module",
