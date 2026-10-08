@@ -14,6 +14,11 @@ export interface PostFrontmatter {
   date: string
   readingTime: number
   wordCount: number
+  /** Per-post CTA override fields (optional). */
+  ctaTitle?: string
+  ctaSubtitle?: string
+  ctaButtonLabel?: string
+  ctaButtonUrl?: string
 }
 
 export interface ParsedPost {

@@ -39,6 +39,8 @@ export async function publishPost(
       ? undefined
       : (options.status ?? post.frontmatter.status)
 
+  const { ctaTitle, ctaSubtitle, ctaButtonLabel, ctaButtonUrl } = post.frontmatter
+
   const res = await fetch(url, {
     method: 'POST',
     headers,
@@ -49,6 +51,10 @@ export async function publishPost(
       keyword: post.frontmatter.keyword,
       content: post.content,
       frontmatter: post.frontmatter,
+      ...(ctaTitle !== undefined ? { ctaTitle } : {}),
+      ...(ctaSubtitle !== undefined ? { ctaSubtitle } : {}),
+      ...(ctaButtonLabel !== undefined ? { ctaButtonLabel } : {}),
+      ...(ctaButtonUrl !== undefined ? { ctaButtonUrl } : {}),
       ...(status !== undefined ? { status } : {}),
       ...(options.upsert ? { upsert: true } : {}),
       ...(config.projectSlug ? { projectSlug: config.projectSlug } : {}),

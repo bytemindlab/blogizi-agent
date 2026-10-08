@@ -85,6 +85,10 @@ status: "draft"
 date: "2026-08-07"
 readingTime: 0
 wordCount: 0
+ctaTitle: "Optional per-post CTA title"
+ctaSubtitle: "Optional subtitle"
+ctaButtonLabel: "Optional button label"
+ctaButtonUrl: "https://example.com"
 ---
 
 Body markdown here. Do not repeat the title as an H1 — the blog UI already shows the title.
@@ -97,6 +101,7 @@ Body markdown here. Do not repeat the title as an H1 — the blog UI already sho
 - `description`: one sentence, SEO-useful.
 - `keyword`: phrase the post should rank for.
 - `status` in the file is overridden by `draft` (→ draft) and `publish` (→ published). `update` only changes status when the file sets `status` explicitly; otherwise the existing post keeps its visibility.
+- Optional CTA fields (`ctaTitle`, `ctaSubtitle`, `ctaButtonLabel`, `ctaButtonUrl`) override the project branding CTA when title, button label, and URL are all set. Omit them to keep the project default / existing values on update.
 
 ## When the CLI is unavailable (sandbox / no shell)
 
@@ -136,7 +141,7 @@ Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules:
 | Re-push same slug | `blogizi update` | `update_post` |
 | Go live | `blogizi publish` | `publish_post` |
 
-Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. `draft_post` fails if the slug exists — use `update_post`.
+Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`.
 
 With MCP you still write the post body yourself; pass it as `content` (markdown without frontmatter). You do not need a local `.md` file if the sandbox has nowhere useful to write one — but prefer a file when the repo is writable so the user can review.
 

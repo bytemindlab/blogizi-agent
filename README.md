@@ -147,12 +147,17 @@ status: "draft"
 date: "2026-08-07"
 readingTime: 0
 wordCount: 0
+# Optional per-post CTA (overrides project branding when title + button label + URL are set)
+ctaTitle: "Ship this workflow on your domain"
+ctaSubtitle: "Drafts by default — publish when you confirm."
+ctaButtonLabel: "Start free trial"
+ctaButtonUrl: "https://blogizi.com/#pricing"
 ---
 
 Your markdown content here.
 ```
 
-The CLI recalculates `readingTime` / `wordCount` on parse and strips a duplicate H1 that matches `title` when present.
+The CLI recalculates `readingTime` / `wordCount` on parse and strips a duplicate H1 that matches `title` when present. Omit CTA fields to keep the project default (or existing values on `blogizi update`).
 
 ## Public API reference
 
@@ -200,10 +205,16 @@ X-Blogizi-Project: your-project-slug
 | `description` | string | Optional meta description |
 | `keyword` | string | Optional focus keyword |
 | `content` | string | Markdown body (without frontmatter) |
-| `frontmatter` | object | Optional; merged metadata |
+| `ctaTitle` | string | Optional per-post CTA title |
+| `ctaSubtitle` | string | Optional per-post CTA subtitle |
+| `ctaButtonLabel` | string | Optional per-post CTA button label |
+| `ctaButtonUrl` | string | Optional per-post CTA button URL |
+| `frontmatter` | object | Optional; merged metadata (CTA keys also read from here) |
 | `status` | `"draft"` \| `"published"` | Visibility |
 | `projectSlug` | string | Optional alternative to the header |
 | `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (`blogizi update` and the [Obsidian plugin](https://blogizi.com/docs/obsidian)) |
+
+Per-post CTA shows when `ctaTitle`, `ctaButtonLabel`, and `ctaButtonUrl` are all set. On upsert, omit a CTA field to keep the existing value.
 
 **Success response** (simplified):
 
