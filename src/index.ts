@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from 'module'
 import { Command } from 'commander'
 import { authCommand } from './commands/auth.js'
 import { loginCommand } from './commands/login.js'
@@ -10,12 +11,17 @@ import { updateCommand } from './commands/update.js'
 import { uploadCommand } from './commands/upload.js'
 import { useCommand } from './commands/use.js'
 
+// Read the version from package.json so it can't drift from the release.
+const { version } = createRequire(import.meta.url)('../package.json') as {
+  version: string
+}
+
 const program = new Command()
 
 program
   .name('blogizi')
   .description('Draft, update, and publish markdown posts to your Blogizi blog')
-  .version('0.5.0')
+  .version(version)
 
 program
   .command('login')

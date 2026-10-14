@@ -1,6 +1,6 @@
 {
   "name": "blogizi",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Draft, update, and publish SEO blog posts to your Blogizi blog. Agents write the post; Blogizi publishes it to your domain with sitemaps, schema and OG images. Bundles the Blogizi skill (CLI) and the hosted Blogizi MCP server (sign in with Blogizi on first use).",
   "author": {
     "name": "ByteMind",
