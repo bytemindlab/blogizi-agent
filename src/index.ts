@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import { authCommand } from './commands/auth.js'
+import { loginCommand } from './commands/login.js'
+import { logoutCommand } from './commands/logout.js'
+import { statusCommand } from './commands/status.js'
 import { draftCommand } from './commands/draft.js'
 import { publishCommand } from './commands/publish.js'
 import { updateCommand } from './commands/update.js'
@@ -15,8 +18,27 @@ program
   .version('0.5.0')
 
 program
+  .command('login')
+  .description('Sign in to Blogizi in your browser (recommended)')
+  .option('-p, --project <slug>', 'Set the active project slug')
+  .option('--no-browser', 'Print the sign-in URL instead of opening a browser')
+  .option('--api-url <url>', 'Blogizi URL (default: https://blogizi.com)')
+  .action((options) => loginCommand(options))
+
+program
+  .command('logout')
+  .description('Sign out and revoke this device’s Blogizi session')
+  .action(logoutCommand)
+
+program
+  .command('status')
+  .alias('whoami')
+  .description('Show how the CLI is authenticated and which blogs it can reach')
+  .action(statusCommand)
+
+program
   .command('auth <apiKey>')
-  .description('Authenticate with your Blogizi account API key')
+  .description('Authenticate with an account API key (alternative to blogizi login)')
   .option('-p, --project <slug>', 'Set the active project slug')
   .action((apiKey, options) => authCommand(apiKey, options))
 

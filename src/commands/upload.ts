@@ -2,7 +2,7 @@ import { basename, resolve } from 'path'
 import { existsSync } from 'fs'
 import chalk from 'chalk'
 import ora from 'ora'
-import { requireConfig } from '../lib/config.js'
+import { requireAuthConfig } from '../lib/config.js'
 import { uploadImage } from '../lib/api.js'
 
 type UploadOptions = {
@@ -13,7 +13,7 @@ type UploadOptions = {
 }
 
 export async function uploadCommand(filePath: string, options: UploadOptions) {
-  const config = requireConfig()
+  const config = await requireAuthConfig()
   const absolute = resolve(filePath)
 
   if (!existsSync(absolute)) {

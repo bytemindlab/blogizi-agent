@@ -1,8 +1,21 @@
 export interface Config {
+  /**
+   * Bearer credential sent to the API. For `blogizi auth <key>` this is the
+   * account API key; after `blogizi login` it is filled in at runtime with a
+   * fresh OAuth access token (see requireAuthConfig).
+   */
   apiKey: string
   apiUrl: string // default: https://blogizi.com
   /** Active project slug for CLI draft/publish when using an account API key */
   projectSlug?: string
+  /** How this config authenticates. Missing = legacy API key config. */
+  authMethod?: 'api_key' | 'oauth'
+  /** OAuth (blogizi login): short-lived access token */
+  accessToken?: string
+  /** OAuth (blogizi login): rotating refresh token */
+  refreshToken?: string
+  /** OAuth: access token expiry, epoch milliseconds */
+  accessTokenExpiresAt?: number
 }
 
 export interface PostFrontmatter {

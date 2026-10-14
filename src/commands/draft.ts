@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs'
 import chalk from 'chalk'
 import ora from 'ora'
-import { requireConfig } from '../lib/config.js'
+import { requireAuthConfig } from '../lib/config.js'
 import { parsePost } from '../lib/parser.js'
 import { pushPostWithImages, withForcedStatus } from '../lib/pushPost.js'
 
 export async function draftCommand(filePath: string) {
-  const config = requireConfig()
+  const config = await requireAuthConfig()
 
   const raw = readFileSync(filePath, 'utf-8')
   const post = withForcedStatus(parsePost(raw), 'draft')

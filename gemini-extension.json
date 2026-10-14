@@ -1,0 +1,11 @@
+{
+  "name": "blogizi",
+  "version": "0.5.0",
+  "description": "Draft, update, and publish SEO blog posts to your Blogizi blog from Gemini CLI. Bundles the Blogizi skill and the hosted Blogizi MCP server.",
+  "mcpServers": {
+    "blogizi": {
+      "httpUrl": "https://blogizi.com/api/mcp",
+      "description": "Official Blogizi MCP server (hosted, streamable HTTP). Authorizes via OAuth on first connection: Gemini CLI opens a browser to sign in to Blogizi; no token or local install required."
+    }
+  }
+}
