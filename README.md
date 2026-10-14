@@ -122,9 +122,10 @@ blogizi use another-project-slug
 | --- | --- |
 | `blogizi auth <apiKey> [--project <slug>]` | Save account API key (and optional project) |
 | `blogizi use <projectSlug>` | Set active project for draft/update/publish |
-| `blogizi draft <file>` | Save a local `.md` file as a **draft** |
+| `blogizi draft <file>` | Save a local `.md` file as a **draft** (auto-uploads relative images) |
 | `blogizi update <file>` | **Update** an existing post by slug (`upsert`) |
 | `blogizi publish <file>` | Publish a local `.md` file **live** |
+| `blogizi upload <file> --slug <post>` | Upload a **cover** or **content** image; prints URL / markdown |
 
 ### Typical agent workflow
 

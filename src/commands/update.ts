@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import ora from 'ora'
 import { requireConfig } from '../lib/config.js'
 import { parsePost } from '../lib/parser.js'
-import { publishPost } from '../lib/api.js'
+import { pushPostWithImages } from '../lib/pushPost.js'
 
 function hasExplicitStatus(raw: string): boolean {
   const { data } = matter(raw)
@@ -19,7 +19,7 @@ export async function updateCommand(filePath: string) {
   const explicitStatus = hasExplicitStatus(raw)
 
   const spinner = ora('Updating post...').start()
-  const result = await publishPost(config, post, {
+  const result = await pushPostWithImages(config, post, filePath, {
     upsert: true,
     // Keep the live/draft status on the server unless the file sets it.
     status: explicitStatus ? post.frontmatter.status : null,
@@ -30,9 +30,14 @@ export async function updateCommand(filePath: string) {
     process.exit(1)
   }
 
+  const imageNote =
+    result.imagesUploaded && result.imagesUploaded > 0
+      ? ` · ${result.imagesUploaded} image(s) uploaded`
+      : ''
+
   if (result.created) {
     spinner.succeed(
-      `No existing post with slug "${post.frontmatter.slug}" — created a new one`,
+      `No existing post with slug "${post.frontmatter.slug}" — created a new one${imageNote}`,
     )
     if (result.url) {
       console.log(chalk.dim(result.url))
@@ -40,7 +45,7 @@ export async function updateCommand(filePath: string) {
     return
   }
 
-  spinner.succeed(`Updated post "${post.frontmatter.slug}"`)
+  spinner.succeed(`Updated post "${post.frontmatter.slug}"${imageNote}`)
   if (result.url) {
     console.log(chalk.dim(result.url))
   }

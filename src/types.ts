@@ -14,6 +14,10 @@ export interface PostFrontmatter {
   date: string
   readingTime: number
   wordCount: number
+  /** Absolute HTTPS cover URL, or set after CLI uploads a local coverImage. */
+  coverImageUrl?: string
+  /** Local relative path or HTTPS URL for the cover image. */
+  coverImage?: string
   /** Per-post CTA override fields (optional). */
   ctaTitle?: string
   ctaSubtitle?: string
