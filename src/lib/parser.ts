@@ -43,6 +43,8 @@ export function parsePost(raw: string): ParsedPost {
   const ctaSubtitle = optionalString(data.ctaSubtitle)
   const ctaButtonLabel = optionalString(data.ctaButtonLabel)
   const ctaButtonUrl = optionalString(data.ctaButtonUrl)
+  const coverImageUrl = optionalString(data.coverImageUrl)
+  const coverImage = optionalString(data.coverImage)
 
   const frontmatter: PostFrontmatter = {
     title,
@@ -53,6 +55,8 @@ export function parsePost(raw: string): ParsedPost {
     date: data.date || new Date().toISOString().split('T')[0],
     readingTime,
     wordCount,
+    ...(coverImageUrl !== undefined ? { coverImageUrl } : {}),
+    ...(coverImage !== undefined ? { coverImage } : {}),
     ...(ctaTitle !== undefined ? { ctaTitle } : {}),
     ...(ctaSubtitle !== undefined ? { ctaSubtitle } : {}),
     ...(ctaButtonLabel !== undefined ? { ctaButtonLabel } : {}),

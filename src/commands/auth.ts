@@ -6,10 +6,12 @@ export async function authCommand(
   options: { project?: string } = {},
 ) {
   const existing = getConfig()
+  // Switching to an API key replaces any `blogizi login` session.
   saveConfig({
     apiKey,
     apiUrl: existing?.apiUrl || 'https://blogizi.com',
     projectSlug: options.project?.trim() || existing?.projectSlug,
+    authMethod: 'api_key',
   })
   console.log(chalk.green('✓ Authenticated successfully'))
   if (options.project?.trim()) {

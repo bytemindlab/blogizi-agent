@@ -17,7 +17,7 @@ Help the human ship blog posts to [Blogizi](https://blogizi.com) from their loca
 
 ## Hard rules
 
-1. **Never ask the user to paste an API key into chat.** Tell them to run `blogizi auth <key>` locally (or edit `~/.blogizi/config.json` themselves). For MCP, tell them to put the key in their MCP client config — never in the chat.
+1. **Never ask the user to paste an API key into chat.** Ask them to run `blogizi login` in their own terminal (browser sign-in, no key needed), or `blogizi auth <key>` locally. For MCP, the connector signs in with Blogizi (OAuth); if a client needs a key, the user puts it in the client config — never in the chat.
 2. **Never commit** `~/.blogizi/config.json`, API keys, or `.env` secrets.
 3. **Default to drafts.** Use `blogizi draft` (or MCP `draft_post`) for the first push unless the user explicitly asks to go live (`blogizi publish` / MCP `publish_post`).
 4. **Use `blogizi update` (or MCP `update_post`) to re-push edits** to an existing slug. Do not invent a new slug just to avoid conflicts.
@@ -32,18 +32,19 @@ Before drafting or publishing, verify (run commands; don't assume):
 node -v                    # need >= 20
 which blogizi || npm install -g blogizi
 blogizi --help
-test -f ~/.blogizi/config.json || echo "NOT AUTHENTICATED"
+blogizi status             # shows auth method + reachable blogs; non-zero exit if not signed in
 ```
 
 If not authenticated:
 
 ```text
-Ask the user to:
-1. Open https://blogizi.com → Dashboard → Account → API
-2. Copy the account API key
-3. Run locally: blogizi auth <api-key>
-4. If they have multiple projects: blogizi use <project-slug>
+Ask the user to run, in their own terminal:
+1. blogizi login            # opens Blogizi in the browser; approve the code shown
+   (alternative: blogizi auth <api-key> with the key from Dashboard → Account → API)
+2. If they have multiple projects: blogizi use <project-slug>
 ```
+
+`blogizi login` waits for the user to approve in the browser, so the user should run it themselves (you can't approve it for them). In CI or headless environments, `BLOGIZI_API_KEY` (plus optional `BLOGIZI_PROJECT`, `BLOGIZI_API_URL`) works without any config file.
 
 If `blogizi` cannot be installed or run (sandbox, locked-down shell, no Node): skip the CLI checklist and use [hosted MCP](https://blogizi.com/docs/mcp) instead (see below). Do not fall back to inventing dashboard-only steps.
 ## Core workflows
@@ -115,7 +116,17 @@ Docs: https://blogizi.com/docs/mcp
 
 ### MCP connect (user configures once)
 
-Streamable HTTP: `https://blogizi.com/api/mcp` with `Authorization: Bearer <account API key>`.
+Streamable HTTP: `https://blogizi.com/api/mcp`. Clients that support MCP OAuth (Claude, Cowork, ChatGPT, Perplexity, Claude Code, Cursor) only need the URL and sign in with Blogizi on first use:
+
+```json
+{
+  "mcpServers": {
+    "blogizi": { "type": "http", "url": "https://blogizi.com/api/mcp" }
+  }
+}
+```
+
+Clients without OAuth support send the account API key as a header:
 
 ```json
 {
@@ -130,7 +141,7 @@ Streamable HTTP: `https://blogizi.com/api/mcp` with `Authorization: Bearer <acco
 }
 ```
 
-Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules: user adds the key in client config — not in chat.
+Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules: the user signs in or adds the key in client config — never in chat.
 
 ### MCP tools (map 1:1 to CLI)
 
@@ -205,8 +216,9 @@ blogizi publish ./content/rate-limiting-with-redis.md
 
 | Symptom | Likely cause | Agent action |
 | --- | --- | --- |
-| `Not authenticated. Run: blogizi auth …` | Missing `~/.blogizi/config.json` | Instruct user to auth locally; do not request the key in chat |
-| `Not authenticated` / 401 from API | Bad or rotated key | User regenerates key in Account → API, re-runs `blogizi auth` |
+| `Not authenticated.` | No login, key or `BLOGIZI_API_KEY` | Ask the user to run `blogizi login` locally; do not request the key in chat |
+| `Your Blogizi session expired or was disconnected.` | Session revoked in Account → Connected apps, or unused for 30 days | User runs `blogizi login` again |
+| `Not authenticated` / 401 from API | Bad or rotated key | User runs `blogizi login`, or regenerates the key in Account → API and re-runs `blogizi auth` |
 | Error about multiple projects / project required | No `projectSlug` with multi-project account | `blogizi use <slug>` or auth with `--project` |
 | Upload/publish 4xx duplicate slug | Post slug already exists | Use `blogizi update` for that slug, or change slug for a new post |
 | Wrong blog updated | Wrong active project | Confirm `projectSlug` in config; `blogizi use` correct slug |
@@ -231,13 +243,13 @@ When a command fails: capture stderr, classify using the table, propose the **sm
 ```text
 User wants a Blogizi post?
 ├─ Can run blogizi CLI?
-│  ├─ Not installed/authed? → install + user runs blogizi auth (+ use)
+│  ├─ Not installed/authed? → install + user runs blogizi login (+ use)
 │  ├─ Need content? → YOU write .md with frontmatter (from repo context)
 │  ├─ First push / new slug? → blogizi draft path/to/post.md
 │  ├─ Edits to existing slug? → blogizi update path/to/post.md
 │  └─ User said go live? → blogizi publish path/to/post.md
 ├─ Sandbox / no CLI, but MCP Blogizi tools available?
-│  ├─ Not connected? → user adds /api/mcp + Bearer key in MCP client config
+│  ├─ Not connected? → user adds https://blogizi.com/api/mcp as a connector and signs in
 │  ├─ Need content? → YOU write body (+ title/slug/meta)
 │  ├─ First push / new slug? → draft_post
 │  ├─ Edits to existing slug? → update_post

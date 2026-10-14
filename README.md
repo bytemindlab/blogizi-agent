@@ -14,6 +14,10 @@ This README is the **primary documentation** for the CLI: install, usage, public
 
 AI coding agents should write (or edit) the `.md` file themselves, then call `blogizi draft` / `blogizi update` / `blogizi publish`. See [SKILL.md](./SKILL.md).
 
+## MCP server
+
+The hosted MCP server at `https://blogizi.com/api/mcp` supports OAuth, so most clients only need the URL and sign in with Blogizi on first use. This repo's `.mcp.json` (Claude Code plugin), `.cursor-plugin/mcp.json` and `gemini-extension.json` register it that way.
+
 ## Claude Code plugin
 
 This repo is a Claude Code plugin (`blogizi`). Local test:
@@ -64,14 +68,30 @@ blogizi --help
 ## Setup
 
 1. Create a project at [blogizi.com](https://blogizi.com).
-2. Copy your **account API key** from **Dashboard → Account → API** (also shown under project Settings → API).
-3. Authenticate:
+2. Sign in from the terminal (recommended):
+
+```sh
+blogizi login
+```
+
+This opens Blogizi in your browser and shows a code like `BCDF-GHJK`. Check that it matches, click **Approve**, and the CLI is signed in. No API key to copy. Sessions refresh automatically; disconnect any time in **Dashboard → Account → API → Connected apps**, or run `blogizi logout`. On a remote machine, `blogizi login --no-browser` prints the URL to open elsewhere.
+
+Prefer an API key? Copy your **account API key** from **Dashboard → Account → API** and run:
 
 ```sh
 blogizi auth YOUR_ACCOUNT_API_KEY
 ```
 
-4. If you have **more than one project**, select which blog to publish to:
+In CI, skip the config file and set environment variables instead:
+
+```sh
+export BLOGIZI_API_KEY=YOUR_ACCOUNT_API_KEY
+export BLOGIZI_PROJECT=your-project-slug   # optional
+```
+
+Order of precedence: `blogizi login` session → `blogizi auth` key → `BLOGIZI_API_KEY`. `BLOGIZI_PROJECT` overrides the stored active project.
+
+3. If you have **more than one project**, select which blog to publish to:
 
 ```sh
 blogizi use your-project-slug
@@ -81,17 +101,18 @@ blogizi auth YOUR_ACCOUNT_API_KEY --project your-project-slug
 
 With a single project, the API picks it automatically — you can skip `blogizi use`.
 
-Credentials are stored in `~/.blogizi/config.json`:
+Credentials are stored in `~/.blogizi/config.json` (file mode `600`). After `blogizi login` it holds an OAuth access token and a rotating refresh token; after `blogizi auth` it holds your API key:
 
 ```json
 {
   "apiKey": "…",
   "apiUrl": "https://blogizi.com",
-  "projectSlug": "your-project-slug"
+  "projectSlug": "your-project-slug",
+  "authMethod": "api_key"
 }
 ```
 
-Treat the API key like a password. Never commit it to git or paste it into chat logs.
+Check what the CLI is using with `blogizi status`. Treat the file like a password. Never commit it to git or paste its contents into chat logs.
 
 ## Usage
 
@@ -120,11 +141,15 @@ blogizi use another-project-slug
 
 | Command | Description |
 | --- | --- |
+| `blogizi login [--project <slug>] [--no-browser]` | Sign in through the browser (OAuth device flow) |
+| `blogizi logout` | Sign out and revoke this device's session |
+| `blogizi status` (alias `whoami`) | Show auth method, active project and reachable blogs |
 | `blogizi auth <apiKey> [--project <slug>]` | Save account API key (and optional project) |
 | `blogizi use <projectSlug>` | Set active project for draft/update/publish |
-| `blogizi draft <file>` | Save a local `.md` file as a **draft** |
+| `blogizi draft <file>` | Save a local `.md` file as a **draft** (auto-uploads relative images) |
 | `blogizi update <file>` | **Update** an existing post by slug (`upsert`) |
 | `blogizi publish <file>` | Publish a local `.md` file **live** |
+| `blogizi upload <file> --slug <post>` | Upload a **cover** or **content** image; prints URL / markdown |
 
 ### Typical agent workflow
 
@@ -165,11 +190,13 @@ Base URL: `https://blogizi.com`
 
 ### Authentication
 
-Account-scoped API key (authorizes **all** projects you own):
+Account-scoped API key (authorizes **all** projects you own), or an OAuth access token from `blogizi login` / a connector (same permissions):
 
 ```http
 Authorization: Bearer YOUR_ACCOUNT_API_KEY
 ```
+
+OAuth 2.1 metadata lives at `https://blogizi.com/.well-known/oauth-authorization-server` (authorization code + PKCE, dynamic client registration, client ID metadata documents, refresh-token rotation, and the device grant used by the CLI).
 
 Optional project selector when you have multiple projects (any one of these):
 

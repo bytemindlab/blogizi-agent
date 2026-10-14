@@ -1,0 +1,6 @@
+{
+  "blogizi": {
+    "type": "http",
+    "url": "https://blogizi.com/api/mcp"
+  }
+}

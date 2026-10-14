@@ -1,0 +1,29 @@
+{
+  "name": "blogizi-agent",
+  "owner": {
+    "name": "ByteMind",
+    "url": "https://github.com/bytemindlab"
+  },
+  "metadata": {
+    "description": "Blogizi for AI agents: draft, update and publish SEO blog posts to your own domain"
+  },
+  "plugins": [
+    {
+      "name": "blogizi",
+      "source": "./",
+      "version": "0.5.0",
+      "description": "Draft, update, and publish SEO blog posts to your Blogizi blog. Bundles the Blogizi skill and the hosted Blogizi MCP server (OAuth).",
+      "author": {
+        "name": "ByteMind",
+        "url": "https://github.com/bytemindlab"
+      },
+      "homepage": "https://blogizi.com/cursor",
+      "repository": "https://github.com/bytemindlab/blogizi-agent",
+      "license": "AGPL-3.0",
+      "category": "productivity",
+      "tags": ["blog", "seo", "publishing", "markdown", "ai-agent"],
+      "keywords": ["blogizi", "blog", "markdown", "seo", "publishing", "cli", "mcp"],
+      "skills": ["./skills/blogizi"]
+    }
+  ]
+}
