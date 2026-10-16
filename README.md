@@ -20,22 +20,34 @@ The hosted MCP server at `https://blogizi.com/api/mcp` supports OAuth, so most c
 
 ## Claude Code plugin
 
-This repo is a Claude Code plugin (`blogizi`). Local test:
+This repo is a Claude Code plugin (`blogizi`). It contains:
 
-```sh
-claude --plugin-dir .
-# then: /blogizi:blogizi
-claude plugin validate . --strict
-```
+- **A skill** (`skills/blogizi/SKILL.md`) that tells Claude how to write a post as markdown with frontmatter and publish it with the Blogizi CLI.
+- **An MCP server entry** (`.mcp.json`) that connects Claude to the hosted Blogizi MCP server at `https://blogizi.com/api/mcp`. You sign in with your Blogizi account (OAuth) the first time a tool is used.
 
-Install from this marketplace (before community listing):
+### What it runs and what it sends
+
+- The plugin itself runs no code on install: no hooks, no scripts, no bundled binaries.
+- When you ask Claude to publish, the skill has Claude run the `blogizi` CLI from npm (`npm install -g blogizi`), whose full source is in `src/` of this repo.
+- The CLI and the MCP server send data only to `blogizi.com`: the post's markdown, frontmatter and any images you choose to upload, plus your Blogizi sign-in token. Search Console data is read from Blogizi, which stores it for your project.
+- Credentials are stored locally in `~/.blogizi/config.json` (mode `600`) after `blogizi login`. Disconnect any time with `blogizi logout` or in **Dashboard → Account → API → Connected apps**.
+- Privacy policy: [blogizi.com/privacy-policy](https://blogizi.com/privacy-policy).
+
+### Install
+
+From the Claude community marketplace, once listed, or straight from this repo:
 
 ```text
 /plugin marketplace add bytemindlab/blogizi-agent
 /plugin install blogizi@blogizi-agent
 ```
 
-To submit to Anthropic’s **community** marketplace (`claude-community`), validate locally, then use [platform.claude.com/plugins/submit](https://platform.claude.com/plugins/submit) (or the Team/Enterprise form on claude.ai). The curated **official** marketplace (`claude-plugins-official`) has no open application process.
+Local test:
+
+```sh
+claude plugin validate . --strict
+claude --plugin-dir .
+```
 
 ## Requirements
 
