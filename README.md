@@ -16,14 +16,14 @@ AI coding agents should write (or edit) the `.md` file themselves, then call `bl
 
 ## MCP server
 
-The hosted MCP server at `https://blogizi.com/api/mcp` supports OAuth, so most clients only need the URL and sign in with Blogizi on first use. This repo's `.mcp.json` (Claude Code plugin), `.cursor-plugin/mcp.json` and `gemini-extension.json` register it that way.
+The hosted MCP server at `https://blogizi.com/api/mcp` supports OAuth, so most clients only need the URL and sign in with Blogizi on first use. The Claude plugin (`plugins/blogizi/.mcp.json`), `.cursor-plugin/mcp.json` and `gemini-extension.json` register it that way.
 
 ## Claude Code plugin
 
-This repo is a Claude Code plugin (`blogizi`). It contains:
+The Claude plugin (`blogizi`) lives in [`plugins/blogizi`](./plugins/blogizi), and this repo's `.claude-plugin/marketplace.json` lists it. It contains:
 
-- **A skill** (`skills/blogizi/SKILL.md`) that tells Claude how to write a post as markdown with frontmatter and publish it with the Blogizi CLI.
-- **An MCP server entry** (`.mcp.json`) that connects Claude to the hosted Blogizi MCP server at `https://blogizi.com/api/mcp`. You sign in with your Blogizi account (OAuth) the first time a tool is used.
+- **A skill** (`plugins/blogizi/skills/blogizi/SKILL.md`, a copy of `SKILL.md`; run `npm run sync:skill` after editing `SKILL.md`) that tells Claude how to write a post as markdown with frontmatter and publish it with the Blogizi CLI.
+- **An MCP server entry** (`plugins/blogizi/.mcp.json`) that connects Claude to the hosted Blogizi MCP server at `https://blogizi.com/api/mcp`. You sign in with your Blogizi account (OAuth) the first time a tool is used.
 
 ### What it runs and what it sends
 
@@ -45,8 +45,8 @@ From the Claude community marketplace, once listed, or straight from this repo:
 Local test:
 
 ```sh
-claude plugin validate . --strict
-claude --plugin-dir .
+claude plugin validate --strict plugins/blogizi
+claude --plugin-dir plugins/blogizi
 ```
 
 ## Requirements

@@ -3,12 +3,12 @@
   "name": "blogizi",
   "displayName": "Blogizi",
   "version": "0.5.2",
-  "description": "Draft, update, and publish SEO blog posts to Blogizi from local markdown. Agents write the post; the Blogizi CLI authenticates and drafts, updates, or publishes via the account API.",
+  "description": "Write blog posts with Claude and publish them to your own domain with Blogizi. Draft, update and publish posts, upload images, and use your Google Search Console data to decide what to write next.",
   "author": {
     "name": "ByteMind",
     "url": "https://github.com/bytemindlab"
   },
-  "homepage": "https://blogizi.com/docs/cli-publishing",
+  "homepage": "https://blogizi.com/claude-code",
   "repository": "https://github.com/bytemindlab/blogizi-agent",
   "license": "AGPL-3.0",
   "keywords": [
@@ -17,9 +17,9 @@
     "markdown",
     "seo",
     "publishing",
-    "cli",
-    "draft",
-    "update",
+    "search-console",
+    "mcp",
     "ai-agent"
-  ]
+  ],
+  "privacyPolicyUrl": "https://blogizi.com/privacy-policy"
 }
