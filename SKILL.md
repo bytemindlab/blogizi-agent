@@ -44,7 +44,7 @@ Ask the user to run, in their own terminal:
 2. If they have multiple projects: blogizi use <project-slug>
 ```
 
-`blogizi login` waits for the user to approve in the browser, so the user should run it themselves (you can't approve it for them). In CI or headless environments, `BLOGIZI_API_KEY` (plus optional `BLOGIZI_PROJECT`, `BLOGIZI_API_URL`) works without any config file.
+`blogizi login` waits for the user to approve in the browser, so the user should run it themselves (you can't approve it for them). Never read, print or export API keys or environment variables yourself; CI setups are covered in the CLI README.
 
 If `blogizi` cannot be installed or run (sandbox, locked-down shell, no Node): skip the CLI checklist and use [hosted MCP](https://blogizi.com/docs/mcp) instead (see below). Do not fall back to inventing dashboard-only steps.
 ## Core workflows
@@ -190,8 +190,9 @@ POST /api/posts
 ## Usage examples (copy-ready)
 
 ```sh
-# First-time setup (user runs with their key)
-blogizi auth "$BLOGIZI_API_KEY" --project my-app
+# First-time setup (the user runs this in their own terminal)
+blogizi login
+blogizi use my-app
 
 # After you wrote the markdown
 blogizi draft ./content/rate-limiting-with-redis.md
@@ -216,7 +217,7 @@ blogizi publish ./content/rate-limiting-with-redis.md
 
 | Symptom | Likely cause | Agent action |
 | --- | --- | --- |
-| `Not authenticated.` | No login, key or `BLOGIZI_API_KEY` | Ask the user to run `blogizi login` locally; do not request the key in chat |
+| `Not authenticated.` | Not signed in | Ask the user to run `blogizi login` locally; do not request the key in chat |
 | `Your Blogizi session expired or was disconnected.` | Session revoked in Account → Connected apps, or unused for 30 days | User runs `blogizi login` again |
 | `Not authenticated` / 401 from API | Bad or rotated key | User runs `blogizi login`, or regenerates the key in Account → API and re-runs `blogizi auth` |
 | Error about multiple projects / project required | No `projectSlug` with multi-project account | `blogizi use <slug>` or auth with `--project` |
@@ -225,7 +226,7 @@ blogizi publish ./content/rate-limiting-with-redis.md
 | `npm install -g blogizi` fails | Node too old / permissions | Need Node 20+; suggest `nvm` or local `npm link` from clone |
 | Network / fetch failed | Offline or API unreachable | Check connectivity to blogizi.com |
 | `blogizi draft` / `suggest` not found | Confused with old AI draft, or `suggest` removed | Use `blogizi draft <file.md>` to save a draft; write the file yourself first |
-| `blogizi` missing / blocked in sandbox | No install or shell exec | Use MCP tools (`draft_post` / `update_post` / `publish_post`); user configures Bearer key in MCP client |
+| `blogizi` missing / blocked in sandbox | No install or shell exec | Use MCP tools (`draft_post` / `update_post` / `publish_post`); the user adds the Blogizi connector and signs in with Blogizi |
 | Need to change a live post | Existing published slug | `blogizi update path/to/post.md` or MCP `update_post` (omit `status` to keep published) |
 
 When a command fails: capture stderr, classify using the table, propose the **smallest** next step (usually one command for the user to run).
