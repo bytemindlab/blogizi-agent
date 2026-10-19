@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "blogizi",
   "displayName": "Blogizi",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Write blog posts with Claude and publish them to your own domain with Blogizi. Draft, update and publish posts, upload images, and use your Google Search Console data to decide what to write next.",
   "author": {
     "name": "ByteMind",

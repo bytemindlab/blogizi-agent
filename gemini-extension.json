@@ -1,6 +1,6 @@
 {
   "name": "blogizi",
-  "version": "0.5.1",
+  "version": "0.5.4",
   "description": "Draft, update, and publish SEO blog posts to your Blogizi blog from Gemini CLI. Bundles the Blogizi skill and the hosted Blogizi MCP server.",
   "mcpServers": {
     "blogizi": {
