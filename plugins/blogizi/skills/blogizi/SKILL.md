@@ -151,8 +151,11 @@ Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules:
 | First push / new slug | `blogizi draft` | `draft_post` |
 | Re-push same slug | `blogizi update` | `update_post` |
 | Go live | `blogizi publish` | `publish_post` |
+| What to write next (Search Console, Pro) | — | `get_search_performance` |
 
 Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`.
+
+`get_search_performance` reads the blog's cached Search Console data (`days`: 7, 28, 90, 180, 365 or 480; default 28). Pass `include: ["opportunities"]` to get the ranked to-do list: `nearMisses` (queries at positions 8–20, each with `nextStep` = improve an existing path or write a new post), `onRadar` (21–40), `lowCtrPages` (rewrite title and description), `freshQueries` and `cannibalization` (two posts competing for one query). Add `"indexing"` to see which posts Google hasn't indexed yet. When the user asks what to write next, start from `nearMisses`, then save each post as a draft.
 
 With MCP you still write the post body yourself; pass it as `content` (markdown without frontmatter). You do not need a local `.md` file if the sandbox has nowhere useful to write one — but prefer a file when the repo is writable so the user can review.
 
