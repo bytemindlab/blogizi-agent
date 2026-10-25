@@ -37,4 +37,5 @@ export async function publishCommand(filePath: string) {
       ? ` · ${result.imagesUploaded} image(s) uploaded`
       : ''
   spinner.succeed(`Published at ${result.url}${imageNote}`)
+  console.log(chalk.dim('Any pending schedule was cancelled.'))
 }

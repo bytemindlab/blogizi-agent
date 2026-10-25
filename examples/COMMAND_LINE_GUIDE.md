@@ -65,15 +65,30 @@ blogizi draft path/to/my-post.md
 - Creates a new post on Blogizi (same slug already existing → conflict — use `update`)
 - Prints a dashboard link to edit the draft
 
+### Schedule a draft
+
+```sh
+# Frontmatter: scheduledAt: "2026-10-26T09:00"  (project timezone if no Z/offset)
+blogizi draft path/to/my-post.md
+
+# Or override on the command line
+blogizi draft path/to/my-post.md --scheduled-at "2026-10-26T09:00"
+```
+
+The post stays a draft until Blogizi publishes it at that time. Do not run `publish` early.
+
 ## 5. Update an existing post
 
 ```sh
 blogizi update path/to/my-post.md
+blogizi update path/to/my-post.md --scheduled-at "2026-10-27T14:30"
+blogizi update path/to/my-post.md --unschedule
 ```
 
 - Matches by `slug` and updates the existing post (`upsert: true`)
 - Keeps current draft/published status unless the file sets `status` explicitly
 - If no post exists for that slug, creates one
+- Omit `scheduledAt` to leave a schedule unchanged; `--unschedule` (or `scheduledAt: null` in frontmatter) clears it
 
 ## 6. Publish live
 
@@ -84,6 +99,7 @@ blogizi publish path/to/my-post.md
 ```
 
 - Forces `status: published`
+- Cancels any pending schedule
 - Prints the public URL: `https://{projectSlug}.app.blogizi.com/{postSlug}`
 
 ## 7. Switch projects
@@ -100,9 +116,9 @@ Confirm the active slug in `~/.blogizi/config.json` if the wrong blog updates.
 | --- | --- |
 | `blogizi auth <key> [--project <slug>]` | Save API key (and optional project) |
 | `blogizi use <slug>` | Set active project |
-| `blogizi draft <file>` | Push `.md` as **draft** (create) |
-| `blogizi update <file>` | **Update** existing post by slug |
-| `blogizi publish <file>` | Push `.md` as **published** (create) |
+| `blogizi draft <file> [--scheduled-at <when>]` | Push `.md` as **draft** (create; optional schedule) |
+| `blogizi update <file> [--scheduled-at <when>] [--unschedule]` | **Update** existing post by slug |
+| `blogizi publish <file>` | Push `.md` as **published** (cancels schedule) |
 
 ## Common workflows
 

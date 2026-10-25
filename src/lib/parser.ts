@@ -24,6 +24,38 @@ function optionalStringList(value: unknown): string[] | undefined {
   return cleaned.length > 0 ? cleaned : undefined
 }
 
+/**
+ * Parse frontmatter scheduledAt.
+ * - Key absent → undefined (omit on API; keep existing on upsert)
+ * - null / empty / ~ → null (clear schedule)
+ * - Date / string → ISO or trimmed string for the server
+ */
+function optionalScheduledAt(
+  data: Record<string, unknown>,
+): string | null | undefined {
+  if (!Object.prototype.hasOwnProperty.call(data, 'scheduledAt')) {
+    return undefined
+  }
+  const value = data.scheduledAt
+  if (value === null || value === undefined || value === '') {
+    return null
+  }
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString()
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    // YAML may parse unix seconds or ms; prefer seconds if small.
+    const ms = value < 1e12 ? value * 1000 : value
+    const d = new Date(ms)
+    return Number.isNaN(d.getTime()) ? null : d.toISOString()
+  }
+  return null
+}
+
 // AI providers frequently restate the title as the first heading, even when
 // told not to — the page already shows the title separately, so strip it
 // here deterministically instead of relying on the prompt being followed.
@@ -63,6 +95,7 @@ export function parsePost(raw: string): ParsedPost {
   const sidebarCtaButtonUrl = optionalString(data.sidebarCtaButtonUrl)
   const coverImageUrl = optionalString(data.coverImageUrl)
   const coverImage = optionalString(data.coverImage)
+  const scheduledAt = optionalScheduledAt(data as Record<string, unknown>)
 
   const frontmatter: PostFrontmatter = {
     title,
@@ -84,6 +117,7 @@ export function parsePost(raw: string): ParsedPost {
     ...(sidebarCtaBullets !== undefined ? { sidebarCtaBullets } : {}),
     ...(sidebarCtaButtonLabel !== undefined ? { sidebarCtaButtonLabel } : {}),
     ...(sidebarCtaButtonUrl !== undefined ? { sidebarCtaButtonUrl } : {}),
+    ...(scheduledAt !== undefined ? { scheduledAt } : {}),
   }
 
   return { frontmatter, content, raw: matter.stringify(content, { ...frontmatter }) }

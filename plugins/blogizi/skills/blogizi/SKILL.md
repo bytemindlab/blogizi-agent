@@ -57,10 +57,14 @@ If `blogizi` cannot be installed or run (sandbox, locked-down shell, no Node): s
 # 2. Upload as draft
 blogizi draft ./posts/<slug>.md
 
+# Optional: schedule instead of publishing now (project timezone if no Z/offset)
+# blogizi draft ./posts/<slug>.md --scheduled-at "2026-10-26T09:00"
+# or set scheduledAt in frontmatter, then draft/update
+
 # 3. Improve the file with the user, then update the same slug
 blogizi update ./posts/<slug>.md
 
-# 4. Only when the user confirms "publish" / "make it live"
+# 4. Only when the user confirms "publish" / "make it live" (cancels any schedule)
 blogizi publish ./posts/<slug>.md
 ```
 
@@ -96,6 +100,8 @@ sidebarCtaBullets:
   - "Optional bullet"
 sidebarCtaButtonLabel: "Optional sidebar button label"
 sidebarCtaButtonUrl: "https://example.com"
+# Optional schedule — future go-live; post stays draft until then
+# scheduledAt: "2026-10-26T09:00"
 ---
 
 Body markdown here. Do not repeat the title as an H1 — the blog UI already shows the title.
@@ -110,6 +116,7 @@ Body markdown here. Do not repeat the title as an H1 — the blog UI already sho
 - `status` in the file is overridden by `draft` (→ draft) and `publish` (→ published). `update` only changes status when the file sets `status` explicitly; otherwise the existing post keeps its visibility.
 - Optional CTA fields (`ctaTitle`, `ctaSubtitle`, `ctaButtonLabel`, `ctaButtonUrl`) override the project branding CTA when title, button label, and URL are all set. Omit them to keep the project default / existing values on update.
 - Optional sidebar CTA fields (`sidebarCtaTitle`, `sidebarCtaText`, `sidebarCtaBullets` list, `sidebarCtaButtonLabel`, `sidebarCtaButtonUrl`) override the project's sticky sidebar CTA the same way (title, button label, and URL required together).
+- Optional `scheduledAt`: ISO with `Z`/offset (absolute) or naive `YYYY-MM-DDTHH:mm` in the project timezone. Future → keeps draft and Blogizi publishes at that time — do not poll or call `publish` early. On update, omit to leave unchanged; `null` or `blogizi update --unschedule` clears. `blogizi publish` / MCP `publish_post` always publishes immediately and cancels any schedule.
 
 ## When the CLI is unavailable (sandbox / no shell)
 
@@ -157,10 +164,11 @@ Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules:
 | List blogs | (config / `blogizi use`) | `list_projects` |
 | First push / new slug | `blogizi draft` | `draft_post` |
 | Re-push same slug | `blogizi update` | `update_post` |
-| Go live | `blogizi publish` | `publish_post` |
+| Go live now | `blogizi publish` | `publish_post` |
+| Schedule / unschedule | `draft`/`update` + `scheduledAt` or `--scheduled-at` / `--unschedule` | `schedule_post` (or `scheduledAt` on draft/update) |
 | What to write next (Search Console, Pro) | — | `get_search_performance` |
 
-Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, optional per-post sidebar CTA `sidebarCtaTitle` / `sidebarCtaText` / `sidebarCtaBullets` / `sidebarCtaButtonLabel` / `sidebarCtaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`.
+Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional `scheduledAt`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, optional per-post sidebar CTA `sidebarCtaTitle` / `sidebarCtaText` / `sidebarCtaBullets` / `sidebarCtaButtonLabel` / `sidebarCtaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`. For a future go-live, set `scheduledAt` or call `schedule_post` — do not invent times or poll until publish.
 
 `get_search_performance` reads the blog's cached Search Console data (`days`: 7, 28, 90, 180, 365 or 480; default 28). Pass `include: ["opportunities"]` to get the ranked to-do list: `nearMisses` (queries at positions 8–20, each with `nextStep` = improve an existing path or write a new post), `onRadar` (21–40), `lowCtrPages` (rewrite title and description), `freshQueries` and `cannibalization` (two posts competing for one query). Add `"indexing"` to see which posts Google hasn't indexed yet. When the user asks what to write next, start from `nearMisses`, then save each post as a draft.
 
@@ -188,12 +196,14 @@ POST /api/posts
   "keyword": "…",
   "content": "markdown body",
   "status": "draft",
+  "scheduledAt": "2026-10-26T09:00",
   "upsert": false,
   "projectSlug": "optional-if-header-set"
 }
 ```
 
 - `upsert: true` → update existing post with the same slug (Obsidian / `blogizi update` / MCP `update_post`).
+- `scheduledAt` → future go-live (naive local uses project timezone); `null` clears; omit leaves unchanged on upsert. `status: "published"` publishes immediately and cancels any schedule.
 - List projects: `GET /api/account/projects`
 - Prefer CLI → MCP → raw `curl` in that order.
 

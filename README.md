@@ -134,14 +134,21 @@ Check what the CLI is using with `blogizi status`. Treat the file like a passwor
 # Save as draft in the dashboard (not live)
 blogizi draft ./posts/go-chi-middleware.md
 
+# Schedule a draft for later (project timezone if no Z/offset)
+blogizi draft ./posts/go-chi-middleware.md --scheduled-at "2026-10-26T09:00"
+# or set scheduledAt in frontmatter, then:
+blogizi draft ./posts/go-chi-middleware.md
+
 # Update an existing post by slug (keeps draft/published unless frontmatter sets status)
 blogizi update ./posts/go-chi-middleware.md
+blogizi update ./posts/go-chi-middleware.md --scheduled-at "2026-10-27T14:30"
+blogizi update ./posts/go-chi-middleware.md --unschedule
 
-# Publish live
+# Publish live immediately (cancels any pending schedule)
 blogizi publish ./posts/go-chi-middleware.md
 ```
 
-`draft` forces `status: draft`; `publish` forces `status: published`. `update` sends `upsert: true` and only changes status when the file sets `status` explicitly — otherwise the post keeps its current visibility.
+`draft` forces `status: draft`; `publish` forces `status: published` and clears any schedule. `update` sends `upsert: true` and only changes status when the file sets `status` explicitly — otherwise the post keeps its current visibility. A future `scheduledAt` keeps the post as a draft until Blogizi publishes it at that time.
 
 ### Project switching
 
@@ -158,9 +165,9 @@ blogizi use another-project-slug
 | `blogizi status` (alias `whoami`) | Show auth method, active project and reachable blogs |
 | `blogizi auth <apiKey> [--project <slug>]` | Save account API key (and optional project) |
 | `blogizi use <projectSlug>` | Set active project for draft/update/publish |
-| `blogizi draft <file>` | Save a local `.md` file as a **draft** (auto-uploads relative images) |
-| `blogizi update <file>` | **Update** an existing post by slug (`upsert`) |
-| `blogizi publish <file>` | Publish a local `.md` file **live** |
+| `blogizi draft <file> [--scheduled-at <when>]` | Save a local `.md` file as a **draft** (auto-uploads relative images; optional schedule) |
+| `blogizi update <file> [--scheduled-at <when>] [--unschedule]` | **Update** an existing post by slug (`upsert`) |
+| `blogizi publish <file>` | Publish a local `.md` file **live** (cancels schedule) |
 | `blogizi upload <file> --slug <post>` | Upload a **cover** or **content** image; prints URL / markdown |
 
 ### Typical agent workflow
@@ -197,12 +204,24 @@ sidebarCtaBullets:
   - "Drafts first, publish when you confirm"
 sidebarCtaButtonLabel: "Start free trial"
 sidebarCtaButtonUrl: "https://blogizi.com/#pricing"
+# Optional schedule (draft until then). ISO with Z/offset is absolute;
+# naive YYYY-MM-DDTHH:mm uses the project timezone (Settings → General).
+# scheduledAt: "2026-10-26T09:00"
+# scheduledAt: null   # clear a schedule on update
 ---
 
 Your markdown content here.
 ```
 
 The CLI recalculates `readingTime` / `wordCount` on parse and strips a duplicate H1 that matches `title` when present. Omit CTA fields to keep the project default (or existing values on `blogizi update`).
+
+### Scheduling
+
+- Set `scheduledAt` in frontmatter, or pass `--scheduled-at` on `draft` / `update` (CLI flag wins).
+- Values: ISO with `Z`/offset (absolute UTC), or naive `YYYY-MM-DDTHH:mm` interpreted in the **project timezone**.
+- Future time → post stays `draft` until Blogizi publishes it (do not poll or run `publish` early).
+- On `update`, omit `scheduledAt` to leave the schedule unchanged; set `scheduledAt: null` (or `--unschedule`) to clear it.
+- `blogizi publish` always goes live immediately and cancels any pending schedule.
 
 ## Public API reference
 
@@ -261,12 +280,13 @@ X-Blogizi-Project: your-project-slug
 | `sidebarCtaBullets` | string[] | Optional per-post sidebar CTA bullet points (max 6) |
 | `sidebarCtaButtonLabel` | string | Optional per-post sidebar CTA button label |
 | `sidebarCtaButtonUrl` | string | Optional per-post sidebar CTA button URL |
+| `scheduledAt` | string \| null | Optional future publish time (ISO or naive local in project timezone). Future → draft + schedule; `null` clears; omit leaves unchanged on upsert |
 | `frontmatter` | object | Optional; merged metadata (CTA keys also read from here) |
-| `status` | `"draft"` \| `"published"` | Visibility |
+| `status` | `"draft"` \| `"published"` | Visibility (`published` publishes immediately and cancels any schedule) |
 | `projectSlug` | string | Optional alternative to the header |
 | `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (`blogizi update` and the [Obsidian plugin](https://blogizi.com/docs/obsidian)) |
 
-Per-post CTA shows when `ctaTitle`, `ctaButtonLabel`, and `ctaButtonUrl` are all set. The per-post sidebar CTA works the same way with `sidebarCtaTitle`, `sidebarCtaButtonLabel`, and `sidebarCtaButtonUrl` (and shows even when the project sidebar CTA is off; style and image come from the project). On upsert, omit a CTA field to keep the existing value.
+Per-post CTA shows when `ctaTitle`, `ctaButtonLabel`, and `ctaButtonUrl` are all set. The per-post sidebar CTA works the same way with `sidebarCtaTitle`, `sidebarCtaButtonLabel`, and `sidebarCtaButtonUrl` (and shows even when the project sidebar CTA is off; style and image come from the project). On upsert, omit a CTA field to keep the existing value. Response `data.scheduledAt` is UTC ISO when scheduled; queue ids are never returned.
 
 **Success response** (simplified):
 

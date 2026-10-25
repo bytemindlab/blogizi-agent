@@ -10,6 +10,11 @@ export type PublishPostOptions = {
    * When `null`, omit status so the server keeps the existing post's status on update.
    */
   status?: PostFrontmatter['status'] | null
+  /**
+   * Overrides frontmatter scheduledAt when set.
+   * `null` clears a schedule; omit to use frontmatter (or leave unchanged).
+   */
+  scheduledAt?: string | null
 }
 
 export type PublishPostResult = {
@@ -18,6 +23,7 @@ export type PublishPostResult = {
   projectId?: string
   postId?: string
   created?: boolean
+  scheduledAt?: string | null
   error?: string
 }
 
@@ -69,7 +75,13 @@ export async function publishPost(
     sidebarCtaButtonLabel,
     sidebarCtaButtonUrl,
     coverImageUrl,
+    scheduledAt: frontmatterScheduledAt,
   } = post.frontmatter
+
+  const scheduledAt =
+    options.scheduledAt !== undefined
+      ? options.scheduledAt
+      : frontmatterScheduledAt
 
   const res = await fetch(url, {
     method: 'POST',
@@ -91,6 +103,7 @@ export async function publishPost(
       ...(sidebarCtaBullets !== undefined ? { sidebarCtaBullets } : {}),
       ...(sidebarCtaButtonLabel !== undefined ? { sidebarCtaButtonLabel } : {}),
       ...(sidebarCtaButtonUrl !== undefined ? { sidebarCtaButtonUrl } : {}),
+      ...(scheduledAt !== undefined ? { scheduledAt } : {}),
       ...(status !== undefined ? { status } : {}),
       ...(options.upsert ? { upsert: true } : {}),
       ...(config.projectSlug ? { projectSlug: config.projectSlug } : {}),
@@ -107,12 +120,21 @@ export async function publishPost(
   const projectSlug = json.project?.slug
   const projectId = json.project?.id
   const postId = json.data?._id || json.data?.id
+  const responseScheduledAt =
+    json.data?.scheduledAt === undefined
+      ? undefined
+      : json.data.scheduledAt === null
+        ? null
+        : String(json.data.scheduledAt)
   return {
     success: true,
     url: `https://${projectSlug}.app.blogizi.com/${slug}`,
     projectId,
     postId: postId ? String(postId) : undefined,
     created: json.created === true,
+    ...(responseScheduledAt !== undefined
+      ? { scheduledAt: responseScheduledAt }
+      : {}),
   }
 }
 

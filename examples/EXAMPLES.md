@@ -47,6 +47,7 @@ node examples/create-post.js
 
 - `blogizi draft` saves a **draft** in the dashboard (not live).
 - `blogizi update` updates an existing post by **slug**.
-- `blogizi publish` makes the post **live**.
+- `blogizi publish` makes the post **live** (cancels any pending schedule).
+- Schedule with frontmatter `scheduledAt` or `--scheduled-at`; clear with `--unschedule`.
 - Prefer the CLI over raw HTTP unless you are building an integration.
 - Full reference: [README.md](../README.md) · Agent guide: [SKILL.md](../SKILL.md)

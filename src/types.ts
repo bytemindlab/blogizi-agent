@@ -42,6 +42,12 @@ export interface PostFrontmatter {
   sidebarCtaBullets?: string[]
   sidebarCtaButtonLabel?: string
   sidebarCtaButtonUrl?: string
+  /**
+   * Future publish time. ISO with Z/offset is absolute; naive
+   * `YYYY-MM-DDTHH:mm` uses the project timezone on the server.
+   * `null` clears a schedule. Omit to leave unchanged on update.
+   */
+  scheduledAt?: string | null
 }
 
 export interface ParsedPost {
