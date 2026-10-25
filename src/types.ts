@@ -36,6 +36,12 @@ export interface PostFrontmatter {
   ctaSubtitle?: string
   ctaButtonLabel?: string
   ctaButtonUrl?: string
+  /** Per-post sidebar CTA override fields (optional). */
+  sidebarCtaTitle?: string
+  sidebarCtaText?: string
+  sidebarCtaBullets?: string[]
+  sidebarCtaButtonLabel?: string
+  sidebarCtaButtonUrl?: string
 }
 
 export interface ParsedPost {

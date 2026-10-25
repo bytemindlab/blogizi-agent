@@ -63,6 +63,11 @@ export async function publishPost(
     ctaSubtitle,
     ctaButtonLabel,
     ctaButtonUrl,
+    sidebarCtaTitle,
+    sidebarCtaText,
+    sidebarCtaBullets,
+    sidebarCtaButtonLabel,
+    sidebarCtaButtonUrl,
     coverImageUrl,
   } = post.frontmatter
 
@@ -81,6 +86,11 @@ export async function publishPost(
       ...(ctaSubtitle !== undefined ? { ctaSubtitle } : {}),
       ...(ctaButtonLabel !== undefined ? { ctaButtonLabel } : {}),
       ...(ctaButtonUrl !== undefined ? { ctaButtonUrl } : {}),
+      ...(sidebarCtaTitle !== undefined ? { sidebarCtaTitle } : {}),
+      ...(sidebarCtaText !== undefined ? { sidebarCtaText } : {}),
+      ...(sidebarCtaBullets !== undefined ? { sidebarCtaBullets } : {}),
+      ...(sidebarCtaButtonLabel !== undefined ? { sidebarCtaButtonLabel } : {}),
+      ...(sidebarCtaButtonUrl !== undefined ? { sidebarCtaButtonUrl } : {}),
       ...(status !== undefined ? { status } : {}),
       ...(options.upsert ? { upsert: true } : {}),
       ...(config.projectSlug ? { projectSlug: config.projectSlug } : {}),

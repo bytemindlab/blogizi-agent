@@ -189,6 +189,14 @@ ctaTitle: "Ship this workflow on your domain"
 ctaSubtitle: "Drafts by default — publish when you confirm."
 ctaButtonLabel: "Start free trial"
 ctaButtonUrl: "https://blogizi.com/#pricing"
+# Optional per-post sidebar CTA (sticky card beside the post; overrides the project sidebar CTA when title + button label + URL are set)
+sidebarCtaTitle: "Publish from your repo"
+sidebarCtaText: "Agents write, Blogizi hosts the SEO blog."
+sidebarCtaBullets:
+  - "🚀 Set up in minutes"
+  - "Drafts first, publish when you confirm"
+sidebarCtaButtonLabel: "Start free trial"
+sidebarCtaButtonUrl: "https://blogizi.com/#pricing"
 ---
 
 Your markdown content here.
@@ -248,12 +256,17 @@ X-Blogizi-Project: your-project-slug
 | `ctaSubtitle` | string | Optional per-post CTA subtitle |
 | `ctaButtonLabel` | string | Optional per-post CTA button label |
 | `ctaButtonUrl` | string | Optional per-post CTA button URL |
+| `sidebarCtaTitle` | string | Optional per-post sidebar CTA title |
+| `sidebarCtaText` | string | Optional per-post sidebar CTA paragraph |
+| `sidebarCtaBullets` | string[] | Optional per-post sidebar CTA bullet points (max 6) |
+| `sidebarCtaButtonLabel` | string | Optional per-post sidebar CTA button label |
+| `sidebarCtaButtonUrl` | string | Optional per-post sidebar CTA button URL |
 | `frontmatter` | object | Optional; merged metadata (CTA keys also read from here) |
 | `status` | `"draft"` \| `"published"` | Visibility |
 | `projectSlug` | string | Optional alternative to the header |
 | `upsert` | boolean | If `true`, update an existing post with the same slug instead of failing (`blogizi update` and the [Obsidian plugin](https://blogizi.com/docs/obsidian)) |
 
-Per-post CTA shows when `ctaTitle`, `ctaButtonLabel`, and `ctaButtonUrl` are all set. On upsert, omit a CTA field to keep the existing value.
+Per-post CTA shows when `ctaTitle`, `ctaButtonLabel`, and `ctaButtonUrl` are all set. The per-post sidebar CTA works the same way with `sidebarCtaTitle`, `sidebarCtaButtonLabel`, and `sidebarCtaButtonUrl` (and shows even when the project sidebar CTA is off; style and image come from the project). On upsert, omit a CTA field to keep the existing value.
 
 **Success response** (simplified):
 

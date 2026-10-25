@@ -90,6 +90,12 @@ ctaTitle: "Optional per-post CTA title"
 ctaSubtitle: "Optional subtitle"
 ctaButtonLabel: "Optional button label"
 ctaButtonUrl: "https://example.com"
+sidebarCtaTitle: "Optional sidebar CTA title"
+sidebarCtaText: "Optional sidebar CTA text"
+sidebarCtaBullets:
+  - "Optional bullet"
+sidebarCtaButtonLabel: "Optional sidebar button label"
+sidebarCtaButtonUrl: "https://example.com"
 ---
 
 Body markdown here. Do not repeat the title as an H1 — the blog UI already shows the title.
@@ -103,6 +109,7 @@ Body markdown here. Do not repeat the title as an H1 — the blog UI already sho
 - `keyword`: phrase the post should rank for.
 - `status` in the file is overridden by `draft` (→ draft) and `publish` (→ published). `update` only changes status when the file sets `status` explicitly; otherwise the existing post keeps its visibility.
 - Optional CTA fields (`ctaTitle`, `ctaSubtitle`, `ctaButtonLabel`, `ctaButtonUrl`) override the project branding CTA when title, button label, and URL are all set. Omit them to keep the project default / existing values on update.
+- Optional sidebar CTA fields (`sidebarCtaTitle`, `sidebarCtaText`, `sidebarCtaBullets` list, `sidebarCtaButtonLabel`, `sidebarCtaButtonUrl`) override the project's sticky sidebar CTA the same way (title, button label, and URL required together).
 
 ## When the CLI is unavailable (sandbox / no shell)
 
@@ -153,7 +160,7 @@ Stdio-only clients can bridge with `mcp-remote` (see MCP docs). Same auth rules:
 | Go live | `blogizi publish` | `publish_post` |
 | What to write next (Search Console, Pro) | — | `get_search_performance` |
 
-Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`.
+Post tools take `title`, `slug`, optional `description` / `keyword` / `content`, optional per-post CTA `ctaTitle` / `ctaSubtitle` / `ctaButtonLabel` / `ctaButtonUrl`, optional per-post sidebar CTA `sidebarCtaTitle` / `sidebarCtaText` / `sidebarCtaBullets` / `sidebarCtaButtonLabel` / `sidebarCtaButtonUrl`, and `projectSlug` when the account has more than one project. `update_post` accepts optional `status`; omit it to keep draft/published. Omit CTA fields on update to keep existing CTA values. `draft_post` fails if the slug exists — use `update_post`.
 
 `get_search_performance` reads the blog's cached Search Console data (`days`: 7, 28, 90, 180, 365 or 480; default 28). Pass `include: ["opportunities"]` to get the ranked to-do list: `nearMisses` (queries at positions 8–20, each with `nextStep` = improve an existing path or write a new post), `onRadar` (21–40), `lowCtrPages` (rewrite title and description), `freshQueries` and `cannibalization` (two posts competing for one query). Add `"indexing"` to see which posts Google hasn't indexed yet. When the user asks what to write next, start from `nearMisses`, then save each post as a draft.
 

@@ -11,6 +11,19 @@ function optionalString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined
 }
 
+/** YAML list of strings, or one string with a bullet per line. */
+function optionalStringList(value: unknown): string[] | undefined {
+  const items =
+    typeof value === 'string'
+      ? value.split('\n')
+      : Array.isArray(value)
+        ? value.filter((item): item is string => typeof item === 'string')
+        : undefined
+  if (!items) return undefined
+  const cleaned = items.map((item) => item.trim()).filter(Boolean)
+  return cleaned.length > 0 ? cleaned : undefined
+}
+
 // AI providers frequently restate the title as the first heading, even when
 // told not to — the page already shows the title separately, so strip it
 // here deterministically instead of relying on the prompt being followed.
@@ -43,6 +56,11 @@ export function parsePost(raw: string): ParsedPost {
   const ctaSubtitle = optionalString(data.ctaSubtitle)
   const ctaButtonLabel = optionalString(data.ctaButtonLabel)
   const ctaButtonUrl = optionalString(data.ctaButtonUrl)
+  const sidebarCtaTitle = optionalString(data.sidebarCtaTitle)
+  const sidebarCtaText = optionalString(data.sidebarCtaText)
+  const sidebarCtaBullets = optionalStringList(data.sidebarCtaBullets)
+  const sidebarCtaButtonLabel = optionalString(data.sidebarCtaButtonLabel)
+  const sidebarCtaButtonUrl = optionalString(data.sidebarCtaButtonUrl)
   const coverImageUrl = optionalString(data.coverImageUrl)
   const coverImage = optionalString(data.coverImage)
 
@@ -61,6 +79,11 @@ export function parsePost(raw: string): ParsedPost {
     ...(ctaSubtitle !== undefined ? { ctaSubtitle } : {}),
     ...(ctaButtonLabel !== undefined ? { ctaButtonLabel } : {}),
     ...(ctaButtonUrl !== undefined ? { ctaButtonUrl } : {}),
+    ...(sidebarCtaTitle !== undefined ? { sidebarCtaTitle } : {}),
+    ...(sidebarCtaText !== undefined ? { sidebarCtaText } : {}),
+    ...(sidebarCtaBullets !== undefined ? { sidebarCtaBullets } : {}),
+    ...(sidebarCtaButtonLabel !== undefined ? { sidebarCtaButtonLabel } : {}),
+    ...(sidebarCtaButtonUrl !== undefined ? { sidebarCtaButtonUrl } : {}),
   }
 
   return { frontmatter, content, raw: matter.stringify(content, { ...frontmatter }) }
