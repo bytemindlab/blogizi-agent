@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Blogizi CLI plugin for drafting, updating, and publishing SEO blog posts from local markdown",
-    "version": "0.5.4"
+    "version": "0.5.5"
   },
   "plugins": [
     {
       "name": "blogizi",
       "description": "Write blog posts with Claude and publish them to your own domain with Blogizi. Draft, update and publish posts, upload images, and use your Google Search Console data to decide what to write next.",
-      "version": "0.5.4",
+      "version": "0.5.5",
       "source": "./plugins/blogizi",
       "homepage": "https://blogizi.com/claude-code",
       "repository": "https://github.com/bytemindlab/blogizi-agent",
