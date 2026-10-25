@@ -55,19 +55,32 @@ program
 
 program
   .command('draft <file>')
-  .description('Save a local .md file to your blog as a draft')
-  .action(draftCommand)
+  .description(
+    'Save a local .md file to your blog as a draft (optional scheduledAt frontmatter / --scheduled-at)',
+  )
+  .option(
+    '--scheduled-at <when>',
+    'Schedule publish (ISO or local YYYY-MM-DDTHH:mm in project timezone)',
+  )
+  .action((file, options) => draftCommand(file, options))
 
 program
   .command('update <file>')
   .description(
     'Update an existing post by slug (creates one if the slug is new)',
   )
-  .action(updateCommand)
+  .option(
+    '--scheduled-at <when>',
+    'Schedule publish (ISO or local YYYY-MM-DDTHH:mm in project timezone)',
+  )
+  .option('--unschedule', 'Clear a pending schedule')
+  .action((file, options) => updateCommand(file, options))
 
 program
   .command('publish <file>')
-  .description('Publish a local .md file to your blog')
+  .description(
+    'Publish a local .md file live immediately (cancels any pending schedule)',
+  )
   .action(publishCommand)
 
 program
